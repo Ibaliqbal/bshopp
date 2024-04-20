@@ -1,7 +1,12 @@
+import Drawer from "@/components/ui/drawer";
+import CartModal from "@/features/cart/CartModal";
 import HomeView from "@/views/home";
 import Head from "next/head";
+import { useState } from "react";
 
 export default function Home() {
+  const [open, setOpen] = useState(false);
+
   return (
     <>
       <Head>

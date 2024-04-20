@@ -35,9 +35,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href={`https://api.whatsapp.com/send?phone=${process.env.PHONE}&text=Halo saya ingin berbicara dengan Iqbal Muthahhary`}
+                  href={`https://api.whatsapp.com/send?phone=${
+                    process.env.PHONE || ""
+                  }&text=Halo saya ingin berbicara dengan Iqbal Muthahhary`}
                   target="_blank"
-                  rel="noopener noreferrer"
                 >
                   <i className="bx bxl-whatsapp text-3xl" />
                 </a>

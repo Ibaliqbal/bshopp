@@ -202,7 +202,6 @@ const ProductCreateView = () => {
                   if (e.target.files) {
                     const file = e.target.files[0];
                     const formatFile = file.type.split("/")[1];
-                    console.log(e.target.files[0]);
                     uploadFile(
                       file,
                       `products/${uuidv4()}.${formatFile}`,

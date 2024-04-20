@@ -3,6 +3,7 @@ import { singUp } from "@/services/auth/service";
 import {
   deleteUser,
   detailUser,
+  detailUserByEmail,
   getUsers,
   updateUser,
 } from "@/services/users/service";
@@ -21,8 +22,21 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     const email = req.query._email;
+    const q = req.query.user;
+    if (q) {
+      const user = await detailUser(q[0] as string);
+      if (user) {
+        return res
+          .status(200)
+          .json({ status: true, message: "Successfuly", payload: user });
+      } else {
+        return res
+          .status(404)
+          .json({ status: false, message: "User not found", payload: {} });
+      }
+    }
     if (email) {
-      const user = await detailUser(email as string);
+      const user = await detailUserByEmail(email as string);
       if (user) {
         return res
           .status(200)
@@ -46,20 +60,17 @@ export default async function handler(
     const data = req.body;
     if (query) {
       if (query[0] === "register") {
-        await singUp(
-          req.body,
-          (result: { status: boolean; message: string }) => {
-            if (result.status) {
-              res
-                .status(201)
-                .json({ status: result.status, message: result.message });
-            } else {
-              res
-                .status(400)
-                .json({ status: result.status, message: result.message });
-            }
+        await singUp(data, (result: { status: boolean; message: string }) => {
+          if (result.status) {
+            return res
+              .status(201)
+              .json({ status: result.status, message: result.message });
+          } else {
+            return res
+              .status(200)
+              .json({ status: result.status, message: result.message });
           }
-        );
+        });
       }
     }
   } else if (req.method === "PUT") {

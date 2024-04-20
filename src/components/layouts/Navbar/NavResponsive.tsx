@@ -1,8 +1,9 @@
-import { useCart } from "@/context/cart/cart.context";
+import { CartContext, useCart } from "@/context/cart/cart.context";
 import { useFavorite } from "@/context/favorite/favorite.context";
+import CartModal from "@/features/cart/CartModal";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 export default function NavResponsive({
   lists,
@@ -16,6 +17,7 @@ export default function NavResponsive({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const fav = useFavorite();
   const cart = useCart();
+  const modal = useContext(CartContext);
   return data ? (
     <>
       <button
@@ -26,7 +28,9 @@ export default function NavResponsive({
       </button>
       <nav
         className={`absolute flex flex-col shadow-lg bg-black  shadow-slate-600 py-4 px-5 pt-5 transition-all text-nowrap duration-200 ease-linear lg:items-center gap-5 w-full ${
-          isOpen ? "top-full z-50 rounded-b-md" : "top-0 -z-30 opacity-0"
+          isOpen
+            ? "top-full scale-z-100 z-40 rounded-b-md"
+            : "top-0 scale-z-0 -z-50 cursor-not-allowed opacity-0"
         }`}
       >
         <div className="flex flex-col gap-2">
@@ -55,14 +59,17 @@ export default function NavResponsive({
             MORE
           </h4>
           <div className="flex items-center gap-6">
-            <Link href={"/profile/cart"} className="relative">
+            <button
+              className="relative"
+              onClick={() => modal?.setOpen((prev) => !prev)}
+            >
               <i className="bx bx-cart-alt text-3xl" />
               {cart?.length || 0 > 0 ? (
                 <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
                   {cart?.length}
                 </span>
               ) : null}
-            </Link>
+            </button>
             <Link href={"/profile/favorite"} className="relative">
               <i className="bx bx-heart text-3xl" />
               {fav?.length || 0 > 0 ? (

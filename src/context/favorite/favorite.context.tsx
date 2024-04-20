@@ -1,12 +1,10 @@
-import { firestore } from "@/lib/firebase/services";
 import { Product } from "@/types/product";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import * as React from "react";
-import { useUser } from "../user/user.context";
-import { User } from "@/types/user";
+import { useUsers } from "../user/user.context";
 import { toast } from "sonner";
 import userService from "@/services/users";
+import { User } from "@/types/user";
 
 type FavoriteContextType = {
   favorite: Product[];
@@ -23,21 +21,25 @@ export const FavoriteProvider = ({
   children: React.ReactNode;
 }): React.ReactElement => {
   const { status } = useSession();
+  const { data } = useSession();
+  const users = useUsers();
   const [favoriteProduct, setFavorite] = React.useState<Product[]>([]);
-  const user = useUser();
-  const email = user?.email ?? "";
+  const findUser = users?.find((user) => user.email === data?.user?.email);
+
+  async function detail() {
+    if (findUser) {
+      const res = await userService.detailUser(findUser.id);
+      const data = res.data.payload as User;
+      console.log(data.favorite);
+      setFavorite(data.favorite);
+    }
+  }
 
   React.useEffect(() => {
-    const unsub = onSnapshot(
-      query(collection(firestore, "users"), where("email", "==", email)),
-      (snapshot) => {
-        const data = snapshot.docs[0]?.data() as User;
-        setFavorite(data?.favorite ?? []);
-      }
-    );
-
-    return () => unsub();
-  }, [email]);
+    if (findUser) {
+      detail();
+    }
+  }, [users]);
 
   const handleFav = async (data: Product) => {
     if (status !== "authenticated") {
@@ -52,7 +54,8 @@ export const FavoriteProvider = ({
             ? favoriteProduct?.filter((product) => product.id !== data.id)
             : [...favoriteProduct, data],
       };
-      await userService.updateUser(user?.id ?? "", update);
+      await userService.updateUser(findUser?.id ?? "", update);
+      detail();
     }
   };
 

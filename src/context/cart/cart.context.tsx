@@ -1,16 +1,14 @@
-import { firestore } from "@/lib/firebase/services";
 import { Cart, User } from "@/types/user";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import * as React from "react";
-import { useUser } from "../user/user.context";
+import { useUsers } from "../user/user.context";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
-import { Product } from "@/types/product";
 import userService from "@/services/users";
+import { toast } from "sonner";
 
 type CartContextType = {
   data: Cart[];
   handleAdd: (data: Cart) => Promise<void>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const CartContext = React.createContext<CartContextType | null>(null);
@@ -21,21 +19,29 @@ export const CartProvider = ({
   children: React.ReactNode;
 }): React.ReactElement => {
   const [cartData, setCart] = React.useState<Cart[]>([]);
-  const { status } = useSession();
+  const { status, data } = useSession();
+  const [open, setOpen] = React.useState(false);
 
-  const user = useUser() as User;
-  const email = user?.email ?? "";
+  const users = useUsers();
+
+  const findUser = users?.find((user) => user.email === data?.user?.email);
+
+  async function detail() {
+    if (findUser) {
+      const res = await userService.detailUser(findUser.id);
+      const data = res.data.payload as User;
+      console.log(data.cart);
+      setCart(data.cart);
+    }
+  }
+
   React.useEffect(() => {
-    const unsub = onSnapshot(
-      query(collection(firestore, "users"), where("email", "==", email)),
-      (snapshot) => {
-        const data = snapshot.docs[0]?.data() as User;
-        setCart(data?.cart ?? []);
-      }
-    );
-
-    return () => unsub();
-  }, [email]);
+    console.log(users);
+    console.log(findUser);
+    if (findUser) {
+      detail();
+    }
+  }, [users]);
 
   const handleAdd = async (data: Cart) => {
     if (status !== "authenticated") {
@@ -52,28 +58,32 @@ export const CartProvider = ({
           quantity: findProduct.quantity + 1,
         };
         cartData[findIndex] = update;
-        const res = await userService.updateUser(user.id ?? "", {
+        const res = await userService.updateUser(findUser?.id ?? "", {
           cart: cartData,
         });
         if (res.status === 200) {
           toast.success(res.data.message);
+          detail();
         } else {
           toast.error(res.data.message);
+          detail();
         }
       } else {
-        const res = await userService.updateUser(user.id ?? "", {
+        const res = await userService.updateUser(findUser?.id ?? "", {
           cart: [...cartData, data],
         });
         if (res.status === 200) {
           toast.success(res.data.message);
+          detail();
         } else {
           toast.error(res.data.message);
+          detail();
         }
       }
     }
   };
   return (
-    <CartContext.Provider value={{ data: cartData, handleAdd }}>
+    <CartContext.Provider value={{ data: cartData, handleAdd, setOpen }}>
       {children}
     </CartContext.Provider>
   );

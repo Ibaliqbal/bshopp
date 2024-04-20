@@ -19,11 +19,6 @@ export async function singUp(
     fullname: string;
     email: string;
     password: string;
-    role: string;
-    type: string;
-    createdAt: FieldValue;
-    updatedAt: FieldValue;
-    photo_profile: string;
   },
   callback: Function
 ) {
@@ -44,6 +39,8 @@ export async function singUp(
         updatedAt: serverTimestamp(),
         role: "member",
         password: await bcrypt.hash(userdata.password, 10),
+        cart: [],
+        favorite: [],
       };
 
       await setData("users", datauser, (result: boolean) => {
@@ -76,7 +73,18 @@ export async function loginWithGoogle(
   if (user.length > 0) {
     callback(user[0]);
   } else {
-    data.role = "member";
+    const datauser = {
+      fullname: data.fullname,
+      email: data.email,
+      photo_profile: data.photo_profile,
+      type: data.type,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      role: "member",
+      cart: [],
+      favorite: [],
+    };
+
     await setData("users", data, (result: boolean) => {
       if (result) callback(data);
     });

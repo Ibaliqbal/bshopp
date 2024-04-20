@@ -1,42 +1,36 @@
 import userService from "@/services/users";
 import { User } from "@/types/user";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import * as React from "react";
 
 type UserT = {
-  data: User | undefined;
+  users: User[];
 };
 
-export const UserContext = React.createContext<UserT | null>(null);
+export const UserContext = React.createContext<UserT>({
+  users: [],
+});
 
 export const UserProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }): React.ReactElement => {
-  const [user, setUser] = React.useState<User>();
-  const { data, status } = useSession();
-  async function fetchUser() {
-    const res = await userService.detailUser(data?.user?.email as string);
-    const detail = res.data.payload;
-    console.log(detail);
-    setUser(detail);
-  }
-  React.useEffect(() => {
-    if (status === "authenticated") {
-      fetchUser();
-    }
-  }, [status]);
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => userService.getUsers(),
+  });
 
   return (
-    <UserContext.Provider value={{ data: user }}>
+    <UserContext.Provider value={{ users: users?.data.payload }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUser = () => {
+export const useUsers = () => {
   const user = React.useContext(UserContext);
 
-  return user?.data;
+  return user.users;
 };

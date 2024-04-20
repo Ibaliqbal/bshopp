@@ -8,8 +8,10 @@ const userService = {
         Authorization: `Bearer ${token}`,
       },
     }),
-  detailUser: (email: string) => instance.get(`/api/user?_email=${email}`),
+  detailUserByEmail: (email: string) =>
+    instance.get(`/api/user?_email=${email}`),
   updateUser: (id: string, data: any) => instance.put(`/api/user/${id}`, data),
+  detailUser: (id: string) => instance.get(`/api/user/${id}`),
 };
 
 export default userService;

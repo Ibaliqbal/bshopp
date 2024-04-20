@@ -5,6 +5,8 @@ import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import DetailView from "@/views/products/Detail";
 import Recomended from "@/views/products/Detail/Recomended";
+import { Timestamp } from "firebase/firestore";
+import { format, formatDistance } from "date-fns";
 
 const DetailProductPage = () => {
   const { query, back } = useRouter();
@@ -20,6 +22,15 @@ const DetailProductPage = () => {
   useEffect(() => {
     setSelectedImage(data?.data.payload.photo_product[0]);
     setSelectPrice(data?.data.payload.other_specs[0].price);
+    const date = data?.data.payload.createdAt.seconds * 1000;
+    if (date) {
+      console.log(format(new Date(date), "MMMM d, yyyy"));
+      // console.log(
+      //   formatDistance(new Date(date), new Date(), {
+      //     addSuffix: true,
+      //   })
+      // );
+    }
   }, [data]);
 
   if (isLoading) return <p>Loading...</p>;

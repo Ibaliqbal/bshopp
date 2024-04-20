@@ -55,8 +55,6 @@ const ProductsPage = () => {
       (a, b) => b.other_specs![0].price - a.other_specs![0].price
     );
   };
-
-  if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>{error.message}</p>;
 
   return (
@@ -80,7 +78,11 @@ const ProductsPage = () => {
             handleFilter={handleFilter}
           />
         </Sidebar>
-        <ProductsView products={filterProducts} />
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <ProductsView products={filterProducts} />
+        )}
       </section>
     </>
   );

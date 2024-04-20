@@ -2,6 +2,7 @@ import {
   deleteData,
   retrieveData,
   retrieveDataByField,
+  retrieveDataDetail,
   updateData,
 } from "@/lib/firebase/services";
 import { where } from "firebase/firestore";
@@ -15,12 +16,18 @@ export async function getUsers() {
   }
 }
 
-export async function detailUser(email: string) {
+export async function detailUserByEmail(email: string) {
   const user = await retrieveDataByField("users", [
     where("email", "==", email),
   ]);
 
   return user[0];
+}
+
+export async function detailUser(id: string) {
+  const user = await retrieveDataDetail("users", id);
+
+  return user;
 }
 
 export async function deleteUser(id: string, callback: Function) {

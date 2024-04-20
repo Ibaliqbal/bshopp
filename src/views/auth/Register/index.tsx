@@ -2,15 +2,17 @@ import Button from "@/components/ui/button";
 import InputField from "@/components/Fragments/InputField";
 import { useRouter } from "next/router";
 import React, { FormEvent, useState } from "react";
-import authServices from "@/services/auth";
 import AuthLayout from "@/components/layouts/AuthLayout";
+import authServices from "@/services/auth";
+import instance from "@/lib/axios/instance";
+import { toast } from "sonner";
 
 const RegisterView = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const { push } = useRouter();
 
-  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
+  async function handleRegister(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -22,16 +24,21 @@ const RegisterView = () => {
       email: form.email.value,
       password: form.password.value,
     };
-    const result = await authServices.registerAccount(data);
 
-    if (result.status === 200) {
-      setLoading(false);
-      push("/auth/login");
-    } else {
-      setLoading(false);
-      setError(result.status === 400 ? "Email already exist" : "");
+    try {
+      const result = await instance.post("/api/user/register", data);
+
+      if (result.status === 201) {
+        setLoading(false);
+        push("/auth/login");
+      } else {
+        setLoading(false);
+        setError(result.status === 200 ? "Email already exist" : "");
+      }
+    } catch (error) {
+      console.log(error);
     }
-  };
+  }
   return (
     <AuthLayout
       error={error}

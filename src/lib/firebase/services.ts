@@ -58,6 +58,18 @@ export async function detailData(
   }
 }
 
+export async function retrieveDataDetail(collectionName: string, id: string) {
+  const docDetail = await getDoc(doc(firestore, collectionName, id));
+  if (docDetail.exists()) {
+    return {
+      id: docDetail.id,
+      ...docDetail.data(),
+    };
+  } else {
+    return null;
+  }
+}
+
 export async function retrieveDataByField(
   collectionName: string,
   filter: any[]
