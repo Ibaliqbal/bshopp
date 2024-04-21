@@ -1,5 +1,4 @@
 import Card from "@/components/Fragments/CardProduct";
-import Button from "@/components/ui/button";
 import { Product } from "@/types/product";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
