@@ -1,6 +1,5 @@
 import { CartContext, useCart } from "@/context/cart/cart.context";
 import { useFavorite } from "@/context/favorite/favorite.context";
-import CartModal from "@/features/cart/CartModal";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useContext, useState } from "react";
@@ -59,17 +58,14 @@ export default function NavResponsive({
             MORE
           </h4>
           <div className="flex items-center gap-6">
-            <button
-              className="relative"
-              onClick={() => modal?.setOpen((prev) => !prev)}
-            >
-              <i className="bx bx-cart-alt text-3xl" />
+            <Link href={"/profile/cart"} className="relative">
+              <i className="bx bx-heart text-3xl" />
               {cart?.length || 0 > 0 ? (
                 <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
                   {cart?.length}
                 </span>
               ) : null}
-            </button>
+            </Link>
             <Link href={"/profile/favorite"} className="relative">
               <i className="bx bx-heart text-3xl" />
               {fav?.length || 0 > 0 ? (
