@@ -4,7 +4,7 @@ import { useUsers } from "../user/user.context";
 import { useSession } from "next-auth/react";
 import userService from "@/services/users";
 import { toast } from "sonner";
-import { doc, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/services";
 
 type CartContextType = {
@@ -33,6 +33,7 @@ export const CartProvider = ({
   const users = useUsers();
 
   const findUser = users?.find((user) => user.email === data?.user?.email);
+  const docRef = doc(firestore, "users", findUser?.id ?? "");
 
   async function detail() {
     if (findUser) {
@@ -49,17 +50,15 @@ export const CartProvider = ({
   // }, [users]);
 
   React.useEffect(() => {
-    const unsub = onSnapshot(
-      doc(firestore, "users", findUser?.id ?? ""),
-      (snaphsot) => {
-        if (snaphsot.exists()) {
-          setCart(snaphsot.data().cart);
-        }
+    const unsub = onSnapshot(collection(firestore, "users"), (snaphsot) => {
+      const findUsers = snaphsot.docs.find((user) => user.id === findUser?.id);
+      if (findUsers) {
+        setCart(findUsers.data().cart);
       }
-    );
+    });
 
     return () => unsub();
-  }, [users]);
+  }, [findUser]);
 
   const handleAdd = async (data: Cart) => {
     if (!findUser?.id) return;
