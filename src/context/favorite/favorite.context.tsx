@@ -30,7 +30,6 @@ export const FavoriteProvider = ({
     if (findUser) {
       const res = await userService.detailUser(findUser.id);
       const data = res.data.payload as User;
-      console.log(data.favorite);
       setFavorite(data.favorite);
     }
   }

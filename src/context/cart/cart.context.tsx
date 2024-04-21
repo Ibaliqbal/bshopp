@@ -8,7 +8,14 @@ import { toast } from "sonner";
 type CartContextType = {
   data: Cart[];
   handleAdd: (data: Cart) => Promise<void>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleDelete: (data: string, variant: string) => Promise<void>;
+  handleCheckout: (data: string, variant: string) => Promise<void>;
+  handleCheckoutAll: () => Promise<void>;
+  handleQuantity: (
+    data: string,
+    variant: string,
+    type: "inc" | "dec"
+  ) => Promise<void>;
 };
 
 export const CartContext = React.createContext<CartContextType | null>(null);
@@ -20,7 +27,6 @@ export const CartProvider = ({
 }): React.ReactElement => {
   const [cartData, setCart] = React.useState<Cart[]>([]);
   const { status, data } = useSession();
-  const [open, setOpen] = React.useState(false);
 
   const users = useUsers();
 
@@ -30,14 +36,11 @@ export const CartProvider = ({
     if (findUser) {
       const res = await userService.detailUser(findUser.id);
       const data = res.data.payload as User;
-      console.log(data.cart);
       setCart(data.cart);
     }
   }
 
   React.useEffect(() => {
-    console.log(users);
-    console.log(findUser);
     if (findUser) {
       detail();
     }
@@ -82,8 +85,114 @@ export const CartProvider = ({
       }
     }
   };
+
+  const handleDelete = async (id: string, variant: string) => {
+    const findProduct = cartData.findIndex(
+      (p) => p.id === id && p.variant === variant
+    );
+    if (findProduct === -1) return;
+    const res = await userService.updateUser(findUser?.id ?? "", {
+      cart: cartData.filter((_, i) => i !== findProduct),
+    });
+    if (res.status === 200) {
+      toast.success(res.data.message);
+      detail();
+    } else {
+      toast.error(res.data.message);
+      detail();
+    }
+  };
+
+  const handleCheckoutAll = async () => {
+    const res = await userService.updateUser(findUser?.id ?? "", {
+      cart: cartData.map((p) => ({
+        ...p,
+        checked: cartData.every((p) => p.checked) ? !p.checked : true,
+      })),
+    });
+    if (res.status === 200) {
+      toast.success(res.data.message);
+      detail();
+    } else {
+      toast.error(res.data.message);
+      detail();
+    }
+  };
+
+  const handleCheckout = async (id: string, variant: string) => {
+    const findPorduct = cartData.findIndex(
+      (p) => p.id === id && p.variant === variant
+    );
+    if (findPorduct === -1) return;
+    const newCart = cartData.map((p, i) => {
+      if (i === findPorduct) {
+        return {
+          ...p,
+          checked: !p.checked,
+        };
+      } else {
+        return p;
+      }
+    });
+
+    const res = await userService.updateUser(findUser?.id ?? "", {
+      cart: newCart,
+    });
+    if (res.status === 200) {
+      toast.success(res.data.message);
+      detail();
+    } else {
+      toast.error(res.data.message);
+      detail();
+    }
+  };
+
+  const handleQuantity = async (
+    id: string,
+    variant: string,
+    type: "inc" | "dec"
+  ) => {
+    const findPorduct = cartData.findIndex(
+      (p) => p.id === id && p.variant === variant
+    );
+    if (findPorduct === -1) return;
+    const newCart = cartData.map((p, i) => {
+      if (i === findPorduct) {
+        return {
+          ...p,
+          quantity:
+            type === "inc"
+              ? p.quantity + 1
+              : p.quantity === 1
+              ? p.quantity
+              : p.quantity - 1,
+        };
+      } else {
+        return p;
+      }
+    });
+    const res = await userService.updateUser(findUser?.id ?? "", {
+      cart: newCart,
+    });
+    if (res.status === 200) {
+      toast.success(res.data.message);
+      detail();
+    } else {
+      toast.error(res.data.message);
+      detail();
+    }
+  };
   return (
-    <CartContext.Provider value={{ data: cartData, handleAdd, setOpen }}>
+    <CartContext.Provider
+      value={{
+        data: cartData,
+        handleAdd,
+        handleCheckout,
+        handleDelete,
+        handleQuantity,
+        handleCheckoutAll,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
