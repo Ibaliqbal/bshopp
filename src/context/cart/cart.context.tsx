@@ -62,6 +62,7 @@ export const CartProvider = ({
   // }, [users]);
 
   const handleAdd = async (data: Cart) => {
+    if (!findUser?.id) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
       return;

@@ -41,6 +41,7 @@ export const FavoriteProvider = ({
   }, [users]);
 
   const handleFav = async (data: Product) => {
+    if (!findUser?.id) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
     } else {
