@@ -4,6 +4,8 @@ import { useUsers } from "../user/user.context";
 import { useSession } from "next-auth/react";
 import userService from "@/services/users";
 import { toast } from "sonner";
+import { doc, onSnapshot } from "firebase/firestore";
+import { firestore } from "@/lib/firebase/services";
 
 type CartContextType = {
   data: Cart[];
@@ -41,9 +43,16 @@ export const CartProvider = ({
   }
 
   React.useEffect(() => {
-    if (findUser) {
-      detail();
-    }
+    const unsub = onSnapshot(
+      doc(firestore, "users", findUser?.id ?? ""),
+      (snaphsot) => {
+        if (snaphsot.exists()) {
+          setCart(snaphsot.data().cart);
+        }
+      }
+    );
+
+    return () => unsub();
   }, [users]);
 
   const handleAdd = async (data: Cart) => {
@@ -66,10 +75,10 @@ export const CartProvider = ({
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          detail();
+          // detail();
         } else {
           toast.error(res.data.message);
-          detail();
+          // detail();
         }
       } else {
         const res = await userService.updateUser(findUser?.id ?? "", {
@@ -77,10 +86,10 @@ export const CartProvider = ({
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          detail();
+          // detail();
         } else {
           toast.error(res.data.message);
-          detail();
+          // detail();
         }
       }
     }
@@ -96,10 +105,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      detail();
+      // detail();
     } else {
       toast.error(res.data.message);
-      detail();
+      // detail();
     }
   };
 
@@ -112,10 +121,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      detail();
+      // detail();
     } else {
       toast.error(res.data.message);
-      detail();
+      // detail();
     }
   };
 
@@ -140,10 +149,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      detail();
+      // detail();
     } else {
       toast.error(res.data.message);
-      detail();
+      // detail();
     }
   };
 
