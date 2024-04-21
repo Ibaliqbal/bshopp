@@ -1,7 +1,6 @@
 import userService from "@/services/users";
 import { User } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
 import * as React from "react";
 
 type UserT = {
