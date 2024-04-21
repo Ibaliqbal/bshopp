@@ -58,7 +58,7 @@ export const CartProvider = ({
     });
 
     return () => unsub();
-  }, [findUser]);
+  }, [users]);
 
   const handleAdd = async (data: Cart) => {
     if (!findUser?.id) return;
