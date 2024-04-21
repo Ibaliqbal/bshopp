@@ -43,17 +43,23 @@ export const CartProvider = ({
   }
 
   React.useEffect(() => {
-    const unsub = onSnapshot(
-      doc(firestore, "users", findUser?.id ?? ""),
-      (snaphsot) => {
-        if (snaphsot.exists()) {
-          setCart(snaphsot.data().cart);
-        }
-      }
-    );
-
-    return () => unsub();
+    if (findUser) {
+      detail();
+    }
   }, [users]);
+
+  // React.useEffect(() => {
+  //   const unsub = onSnapshot(
+  //     doc(firestore, "users", findUser?.id ?? ""),
+  //     (snaphsot) => {
+  //       if (snaphsot.exists()) {
+  //         setCart(snaphsot.data().cart);
+  //       }
+  //     }
+  //   );
+
+  //   return () => unsub();
+  // }, [users]);
 
   const handleAdd = async (data: Cart) => {
     if (status !== "authenticated") {
@@ -75,10 +81,10 @@ export const CartProvider = ({
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          // detail();
+          detail();
         } else {
           toast.error(res.data.message);
-          // detail();
+          detail();
         }
       } else {
         const res = await userService.updateUser(findUser?.id ?? "", {
@@ -86,10 +92,10 @@ export const CartProvider = ({
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          // detail();
+          detail();
         } else {
           toast.error(res.data.message);
-          // detail();
+          detail();
         }
       }
     }
@@ -105,10 +111,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
+      detail();
     } else {
       toast.error(res.data.message);
-      // detail();
+      detail();
     }
   };
 
@@ -121,10 +127,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
+      detail();
     } else {
       toast.error(res.data.message);
-      // detail();
+      detail();
     }
   };
 
@@ -149,10 +155,10 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
+      detail();
     } else {
       toast.error(res.data.message);
-      // detail();
+      detail();
     }
   };
 
