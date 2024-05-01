@@ -81,6 +81,10 @@ const authOptions: AuthOptions = {
         session.user.role = token.role;
       }
 
+      if ("type" in token) {
+        session.user.type = token.type;
+      }
+
       if ("photo_profile" in token) {
         session.user.image = token.photo_profile;
       }
@@ -88,6 +92,7 @@ const authOptions: AuthOptions = {
       const accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET || "", {
         algorithm: "HS256",
       });
+
       session.accessToken = accessToken;
       //   session.accessToken = token.accessToken;
       //   session.refreshToken = token.refreshToken;

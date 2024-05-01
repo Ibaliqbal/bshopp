@@ -95,7 +95,6 @@ const AdminProductsView = ({
         const products = row.original;
         const convertDate = products.createdAt.seconds * 1000;
         const createdAtDate = new Date(convertDate);
-        console.log(createdAtDate);
         return <span>{products.categories?.label}</span>;
       },
     },

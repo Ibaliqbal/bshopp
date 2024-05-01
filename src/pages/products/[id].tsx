@@ -7,6 +7,7 @@ import DetailView from "@/views/products/Detail";
 import Recomended from "@/views/products/Detail/Recomended";
 import { Timestamp } from "firebase/firestore";
 import { format, formatDistance } from "date-fns";
+import Loader from "@/components/ui/loader";
 
 const DetailProductPage = () => {
   const { query, back } = useRouter();
@@ -22,18 +23,14 @@ const DetailProductPage = () => {
   useEffect(() => {
     setSelectedImage(data?.data.payload.photo_product[0]);
     setSelectPrice(data?.data.payload.other_specs[0].price);
-    const date = data?.data.payload.createdAt.seconds * 1000;
-    if (date) {
-      console.log(format(new Date(date), "MMMM d, yyyy"));
-      // console.log(
-      //   formatDistance(new Date(date), new Date(), {
-      //     addSuffix: true,
-      //   })
-      // );
-    }
   }, [data]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <div className="w-full h-dvh flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   if (isError) return <p>{error.message}</p>;
 
   return (

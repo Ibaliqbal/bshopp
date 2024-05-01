@@ -10,6 +10,7 @@ import "@smastrom/react-rating/style.css";
 import { FavoriteProvider } from "@/context/favorite/favorite.context";
 import { CartProvider } from "@/context/cart/cart.context";
 import { UserProvider } from "@/context/user/user.context";
+import { OrderProvider } from "@/context/order/order.context";
 
 const queryClient = new QueryClient();
 
@@ -29,10 +30,12 @@ export default function App({
         <UserProvider>
           <FavoriteProvider>
             <CartProvider>
-              <AppShell>
-                <Component {...pageProps} />
-                <Toaster position="top-right" richColors duration={2000} />
-              </AppShell>
+              <OrderProvider>
+                <AppShell>
+                  <Component {...pageProps} />
+                  <Toaster position="top-center" richColors duration={2000} />
+                </AppShell>
+              </OrderProvider>
             </CartProvider>
           </FavoriteProvider>
         </UserProvider>

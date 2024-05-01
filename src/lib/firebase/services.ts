@@ -171,7 +171,6 @@ export async function searchAndPaginationData(
     id: doc.id,
     ...doc.data(),
   }));
-  console.log(data);
   const totalCount = snapshotCount.data().count - snapshot.size;
   return { data, totalCount };
 }

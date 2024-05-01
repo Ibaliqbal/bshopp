@@ -1,5 +1,7 @@
 import { useCart } from "@/context/cart/cart.context";
 import { useFavorite } from "@/context/favorite/favorite.context";
+import { useUser } from "@/context/user/user.context";
+import { User } from "@/types/user";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,27 +9,32 @@ import React, { useState } from "react";
 
 export default function NavUser() {
   const { data }: any = useSession();
+  const user: User = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const fav = useFavorite();
   const cart = useCart();
   return data ? (
     <section className="flex items-center gap-5 rounded-xl">
-      <Link href={"/profile/cart"} className="relative">
-        <i className="bx bx-cart-alt text-3xl" />
-        {cart?.length || 0 > 0 ? (
-          <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
-            {cart?.length}
-          </span>
-        ) : null}
-      </Link>
-      <Link href={"/profile/favorite"} className="relative">
-        <i className="bx bx-heart text-3xl" />
-        {fav?.length || 0 > 0 ? (
-          <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
-            {fav?.length}
-          </span>
-        ) : null}
-      </Link>
+      {data?.user?.role !== "admin" ? (
+        <>
+          <Link href={"/profile/cart"} className="relative">
+            <i className="bx bx-cart-alt text-3xl" />
+            {cart?.length || 0 > 0 ? (
+              <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
+                {cart?.length}
+              </span>
+            ) : null}
+          </Link>
+          <Link href={"/profile/favorite"} className="relative">
+            <i className="bx bx-heart text-3xl" />
+            {fav?.length || 0 > 0 ? (
+              <span className="w-6 h-6 text-center rounded-full bg-red-500 absolute left-4">
+                {fav?.length}
+              </span>
+            ) : null}
+          </Link>
+        </>
+      ) : null}
       <div className="relative md:block">
         <button
           className={`rounded-xl py-2 ${
@@ -38,9 +45,9 @@ export default function NavUser() {
           <Image
             width={50}
             height={50}
-            src={data.user.image ? data.user.image : "/userdefault.png"}
+            src={user?.photo_profile ? user.photo_profile : "/userdefault.png"}
             alt="profile"
-            className={`${data ? "rounded-full" : null}`}
+            className="rounded-full"
           />
           <i
             className={`bx bx-chevron-up text-3xl mt-[0.15rem] ${
@@ -53,9 +60,11 @@ export default function NavUser() {
             isOpen ? "top-full z-50" : "top-0 -z-30 opacity-0"
           }`}
         >
-          <li>
-            <Link href={"/profile"}>Profile</Link>
-          </li>
+          {data?.user?.role !== "admin" ? (
+            <li>
+              <Link href={"/profile"}>Profile</Link>
+            </li>
+          ) : null}
           <li onClick={() => signOut()} className="cursor-pointer">
             Logout
           </li>

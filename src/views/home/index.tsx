@@ -102,7 +102,7 @@ const HomeView = () => {
           </Link>
         </div>
         <section className="grid grid-cols-2 md:grid-cols-5 w-full gap-4 mt-4">
-          {products.map((product) => {
+          {products?.map((product) => {
             return (
               <Card
                 key={product.id}

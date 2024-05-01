@@ -1,38 +1,24 @@
 import { signIn, signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
-const list = [
-  {
-    name: "Dashboard",
-    icon: "bxs-dashboard",
-    linkTo: "/admin",
-  },
-  {
-    name: "User",
-    icon: "bxs-user",
-    linkTo: "/admin/users",
-  },
-  {
-    name: "Products",
-    icon: "bxs-shopping-bag",
-    linkTo: "/admin/products",
-  },
-  {
-    name: "Settings",
-    icon: "bxs-cog",
-    linkTo: "/admin/settings",
-  },
-];
-
-const Sidebar = () => {
+const Sidebar = ({
+  list,
+  title,
+}: {
+  list: {
+    name: string;
+    icon: string;
+    linkTo: string;
+  }[];
+  title: "Admin Panel" | "Profile Panel";
+}) => {
   const { data }: any = useSession();
   const { pathname, push } = useRouter();
 
   return (
     <aside className="bg-black rounded-md p-3 lg:basis-1/4 hidden h-dvh lg:flex flex-col items-center w-full gap-8 sticky top-3">
-      <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
+      <h1 className="text-2xl font-bold text-white">{title}</h1>
       <ul className="flex flex-col gap-6 w-full">
         {list.map((item, i) => (
           <li
@@ -47,23 +33,25 @@ const Sidebar = () => {
           </li>
         ))}
       </ul>
-      <div className="grow w-full items-end flex pb-4">
-        {data ? (
-          <button
-            className="bg-red-600 rounded-md text-white text-lg w-full py-5 font-bold"
-            onClick={() => signOut()}
-          >
-            Logout
-          </button>
-        ) : (
-          <button
-            className="bg-white rounded-md text-black w-full text-lg py-5 font-bold"
-            onClick={() => signIn()}
-          >
-            Login
-          </button>
-        )}
-      </div>
+      {title === "Admin Panel" ? (
+        <div className="grow w-full items-end flex pb-4">
+          {data ? (
+            <button
+              className="bg-red-600 rounded-md text-white text-lg w-full py-5 font-bold"
+              onClick={() => signOut()}
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              className="bg-white rounded-md text-black w-full text-lg py-5 font-bold"
+              onClick={() => signIn()}
+            >
+              Login
+            </button>
+          )}
+        </div>
+      ) : null}
     </aside>
   );
 };

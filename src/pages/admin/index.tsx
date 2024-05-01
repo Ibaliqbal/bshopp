@@ -7,7 +7,7 @@ const AdminPage = () => {
   const [user, setUser] = useState<any>([]);
 
   const getUser = async () => {
-    const res = await userService.getUsers();
+    const res = await userService.get();
     const data = res.data.payload;
     setUser(data);
   };

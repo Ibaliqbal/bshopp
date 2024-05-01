@@ -27,7 +27,6 @@ const LoginView = () => {
           password: form.password.value,
           callbackUrl,
         });
-        console.log(res?.status);
         if (!res?.error) {
           setIsLoading(false);
           push(callbackUrl);

@@ -64,6 +64,19 @@ export default function DetailView({
       <motion.div className="w-full md:w-1/2 p-4 flex flex-col gap-4">
         <h1 className="text-3xl font-bold">{data.name_product}</h1>
         <p className="text-gray-500 font-bold">{data.categories?.label}</p>
+        <div className="flex items-center gap-2">
+          <Rating
+            readOnly
+            value={5}
+            style={{
+              maxWidth: 120,
+              marginBottom: ".5rem",
+              marginTop: ".5rem",
+            }}
+            itemStyles={myStyles}
+          />
+          <p className="text-lg">5</p>
+        </div>
         <p className="text-4xl font-semibold">{converPrice(selectPrice)}</p>
         <p className="text-lg">
           Stock : {data.other_specs?.reduce((acc, curr) => acc + curr.stock, 0)}{" "}

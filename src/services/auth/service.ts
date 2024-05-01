@@ -41,6 +41,9 @@ export async function singUp(
         password: await bcrypt.hash(userdata.password, 10),
         cart: [],
         favorite: [],
+        province: null,
+        city: null,
+        district: null,
       };
 
       await setData("users", datauser, (result: boolean) => {
@@ -83,6 +86,9 @@ export async function loginWithGoogle(
       role: "member",
       cart: [],
       favorite: [],
+      province: null,
+      city: null,
+      district: null,
     };
 
     await setData("users", data, (result: boolean) => {

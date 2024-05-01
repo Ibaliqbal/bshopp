@@ -9,11 +9,15 @@ import {
 } from "@/services/users/service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
+import userService from "@/services/users";
+import { compare } from "bcrypt";
+import bcrypt from "bcrypt";
 
 type Data = {
   status: boolean;
   message: string;
   payload?: any;
+  statusCode?: number;
 };
 
 export default async function handler(
@@ -81,21 +85,53 @@ export default async function handler(
         .status(400)
         .json({ status: false, message: "Missing parameters" });
     }
-    await updateUser(
-      query[0],
-      data,
-      (result: { status: boolean; message: string }) => {
-        if (result.status) {
-          return res
-            .status(200)
-            .json({ status: true, message: result.message });
-        } else {
-          return res
-            .status(400)
-            .json({ status: false, message: result.message });
+    if (query[1] === "reset") {
+      const isSame = await compare(data.old, data.pw);
+      const newPassword = await bcrypt.hash(data.new, 10);
+      if (!isSame)
+        return res.status(200).json({
+          status: false,
+          statusCode: 417,
+          message: "Password is incorrect",
+        });
+      await updateUser(
+        query[0],
+        { password: newPassword },
+        (result: { status: boolean; message: string }) => {
+          if (result.status) {
+            return res
+              .status(200)
+              .json({ status: true, statusCode: 200, message: result.message });
+          } else {
+            return res.status(200).json({
+              status: false,
+              statusCode: 400,
+              message: result.message,
+            });
+          }
         }
-      }
-    );
+      );
+    } else {
+      await updateUser(
+        query[0],
+        data,
+        (result: { status: boolean; message: string }) => {
+          if (result.status) {
+            return res
+              .status(200)
+              .json({ status: true, statusCode: 200, message: result.message });
+          } else {
+            return res
+              .status(200)
+              .json({
+                status: false,
+                statusCode: 400,
+                message: result.message,
+              });
+          }
+        }
+      );
+    }
   } else if (req.method === "DELETE") {
     const query = req.query.user;
     const token = req.headers.authorization?.split(" ")[1] || "";

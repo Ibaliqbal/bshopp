@@ -1,10 +1,9 @@
 import { Cart, User } from "@/types/user";
 import * as React from "react";
-import { useUsers } from "../user/user.context";
 import { useSession } from "next-auth/react";
 import userService from "@/services/users";
 import { toast } from "sonner";
-import { collection, doc, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/services";
 
 type CartContextType = {
@@ -28,40 +27,32 @@ export const CartProvider = ({
   children: React.ReactNode;
 }): React.ReactElement => {
   const [cartData, setCart] = React.useState<Cart[]>([]);
+  const [userId, setUserId] = React.useState("");
   const { status, data } = useSession();
 
-  const users = useUsers();
-
-  const findUser = users?.find((user) => user.email === data?.user?.email);
-  const docRef = doc(firestore, "users", findUser?.id ?? "");
-
-  async function detail() {
-    if (findUser) {
-      const res = await userService.detailUser(findUser.id);
-      const data = res.data.payload as User;
-      setCart(data.cart);
-    }
-  }
-
-  // React.useEffect(() => {
-  //   if (findUser) {
-  //     detail();
-  //   }
-  // }, [users]);
-
   React.useEffect(() => {
-    const unsub = onSnapshot(collection(firestore, "users"), (snaphsot) => {
-      const findUsers = snaphsot.docs.find((user) => user.id === findUser?.id);
-      if (findUsers) {
-        setCart(findUsers.data().cart);
+    const unsub = onSnapshot(
+      query(
+        collection(firestore, "users"),
+        where("email", "==", data?.user?.email ?? "")
+      ),
+      (snaphsot) => {
+        const findUsers = snaphsot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        if (findUsers) {
+          const data = findUsers[0] as User;
+          setCart(data?.cart);
+          setUserId(data?.id);
+        }
       }
-    });
-
+    );
     return () => unsub();
-  }, [users]);
+  }, [data]);
 
   const handleAdd = async (data: Cart) => {
-    if (!findUser?.id) return;
+    if (!userId) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
       return;
@@ -76,26 +67,22 @@ export const CartProvider = ({
           quantity: findProduct.quantity + 1,
         };
         cartData[findIndex] = update;
-        const res = await userService.updateUser(findUser?.id ?? "", {
+        const res = await userService.update(userId, {
           cart: cartData,
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          // detail();
         } else {
           toast.error(res.data.message);
-          // detail();
         }
       } else {
-        const res = await userService.updateUser(findUser?.id ?? "", {
+        const res = await userService.update(userId, {
           cart: [...cartData, data],
         });
         if (res.status === 200) {
           toast.success(res.data.message);
-          // detail();
         } else {
           toast.error(res.data.message);
-          // detail();
         }
       }
     }
@@ -106,20 +93,18 @@ export const CartProvider = ({
       (p) => p.id === id && p.variant === variant
     );
     if (findProduct === -1) return;
-    const res = await userService.updateUser(findUser?.id ?? "", {
+    const res = await userService.update(userId, {
       cart: cartData.filter((_, i) => i !== findProduct),
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
     } else {
       toast.error(res.data.message);
-      // detail();
     }
   };
 
   const handleCheckoutAll = async () => {
-    const res = await userService.updateUser(findUser?.id ?? "", {
+    const res = await userService.update(userId, {
       cart: cartData.map((p) => ({
         ...p,
         checked: cartData.every((p) => p.checked) ? !p.checked : true,
@@ -127,10 +112,8 @@ export const CartProvider = ({
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
     } else {
       toast.error(res.data.message);
-      // detail();
     }
   };
 
@@ -150,15 +133,13 @@ export const CartProvider = ({
       }
     });
 
-    const res = await userService.updateUser(findUser?.id ?? "", {
+    const res = await userService.update(userId, {
       cart: newCart,
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
     } else {
       toast.error(res.data.message);
-      // detail();
     }
   };
 
@@ -186,15 +167,12 @@ export const CartProvider = ({
         return p;
       }
     });
-    const res = await userService.updateUser(findUser?.id ?? "", {
+    const res = await userService.update(userId, {
       cart: newCart,
     });
     if (res.status === 200) {
       toast.success(res.data.message);
-      // detail();
     } else {
-      toast.error(res.data.message);
-      // detail();
     }
   };
   return (

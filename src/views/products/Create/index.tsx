@@ -9,13 +9,12 @@ import {
   TOption,
   TSchema,
   groupedOptions,
-  mensOption,
   schema,
 } from "@/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Select, { StylesConfig, ThemeConfig } from "react-select";
 import { v4 as uuidv4 } from "uuid";
@@ -56,13 +55,6 @@ const groupBadgeStyles: CSSProperties = {
   padding: "0.16666666666667em 0.5em",
   textAlign: "center",
 };
-
-const formatGroupLabel = (data: TGroupedOptions) => (
-  <div style={groupStyles}>
-    <span>{data.label}</span>
-    <span style={groupBadgeStyles}>{data.options.length}</span>
-  </div>
-);
 
 const ProductCreateView = () => {
   const { back } = useRouter();

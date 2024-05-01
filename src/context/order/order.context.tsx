@@ -4,20 +4,21 @@ import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import * as React from "react";
 
-type UserContextType = {
-  user: User | any;
+type OrderContextType = {
+  order: any[] | undefined;
 };
 
-export const UserContext = React.createContext<UserContextType | null>(null);
+export const OrderContext = React.createContext<OrderContextType>({
+  order: [],
+});
 
-export const UserProvider = ({
+export const OrderProvider = ({
   children,
 }: {
   children: React.ReactElement;
 }) => {
-  const [user, setUser] = React.useState<User | any>();
+  const [order, setOrder] = React.useState<any[] | undefined>([]);
   const { data } = useSession();
-
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(
@@ -31,27 +32,22 @@ export const UserProvider = ({
         }));
         if (findUsers) {
           const data = findUsers[0] as User;
-          setUser(data);
+          setOrder(data?.order);
         }
       }
     );
-
-    return () => unsub();
+    return () => {
+      unsub();
+    };
   }, [data]);
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
+    <OrderContext.Provider value={{ order }}>{children}</OrderContext.Provider>
   );
 };
 
-export const useUser = () => {
-  const user = React.useContext(UserContext);
+export const useOrder = () => {
+  const data = React.useContext(OrderContext);
 
-  return user?.user;
+  return data.order;
 };

@@ -39,7 +39,7 @@ const AdminUserView = ({
             onClick={() =>
               AlertDelete(async (result: boolean) => {
                 if (result) {
-                  const response = await userService.deleteUser(
+                  const response = await userService.delete(
                     row.original.id,
                     session.data?.accessToken
                   );

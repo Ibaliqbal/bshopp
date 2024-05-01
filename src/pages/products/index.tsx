@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layouts/SidebarHome";
 import ListFilter from "@/components/layouts/SidebarHome/ListFilter";
+import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
 import { Product, mensOption, womensOption } from "@/types/product";
 import ProductsView from "@/views/products";
@@ -79,7 +80,9 @@ const ProductsPage = () => {
           />
         </Sidebar>
         {isLoading ? (
-          <p>Loading...</p>
+          <div className="w-full h-dvh flex items-center justify-center">
+            <Loader />
+          </div>
         ) : (
           <ProductsView products={filterProducts} />
         )}

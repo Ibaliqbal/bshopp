@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { z } from "zod";
-import { Product } from "./product";
+import { Product, optionSchema } from "./product";
 
 export type Cart = {
   id: string;
@@ -15,7 +15,7 @@ export type Cart = {
 
 export type User = {
   id: string;
-  username: string;
+  fullname: string;
   email: string;
   password?: string;
   createdAt: Timestamp;
@@ -25,6 +25,12 @@ export type User = {
   cart: Cart[];
   type?: string;
   favorite: Product[];
+  provinces?: TOption;
+  city?: TOption;
+  district?: TOption;
+  phone?: number;
+  spesifik_address?: string;
+  order?: any[];
 };
 
 export const loginSchema = z.object({
@@ -32,4 +38,22 @@ export const loginSchema = z.object({
   password: z.string(),
 });
 
+export const optionAddressSchema = z.object({
+  value: z.number(),
+  label: z.string(),
+});
+
+export const schema = z.object({
+  fullname: z.string(),
+  province: optionAddressSchema.nullable(),
+  city: optionAddressSchema.nullable(),
+  district: optionAddressSchema.nullable(),
+  phone: z.number(),
+  spesifik: z.string(),
+});
+
+export type TOption = z.infer<typeof optionAddressSchema>;
+
 export type TLoginSchema = z.infer<typeof loginSchema>;
+
+export type TSchema = z.infer<typeof schema>;

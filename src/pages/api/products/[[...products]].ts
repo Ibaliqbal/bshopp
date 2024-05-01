@@ -1,3 +1,4 @@
+const midtransClient = require("midtrans-client");
 import { retrieveDataByField, sortedData } from "@/lib/firebase/services";
 import {
   createProduct,
@@ -10,7 +11,7 @@ import {
   searchProducts,
 } from "@/services/products/method";
 import { Product } from "@/types/product";
-import { OrderByDirection, serverTimestamp, where } from "firebase/firestore";
+import { serverTimestamp, where } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
@@ -20,6 +21,12 @@ type Data = {
   count?: number;
   total?: number;
 };
+
+let snap = new midtransClient.Snap({
+  isProducttion: false,
+  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+});
 
 export default async function handler(
   req: NextApiRequest,

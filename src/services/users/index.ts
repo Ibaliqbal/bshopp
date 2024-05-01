@@ -1,8 +1,8 @@
 import instance from "@/lib/axios/instance";
 
 const userService = {
-  getUsers: () => instance.get(`/api/user`),
-  deleteUser: (id: string, token: string) =>
+  get: () => instance.get(`/api/user`),
+  delete: (id: string, token: string) =>
     instance.delete(`/api/user/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -10,8 +10,9 @@ const userService = {
     }),
   detailUserByEmail: (email: string) =>
     instance.get(`/api/user?_email=${email}`),
-  updateUser: (id: string, data: any) => instance.put(`/api/user/${id}`, data),
-  detailUser: (id: string) => instance.get(`/api/user/${id}`),
+  update: (id: string, data: any) => instance.put(`/api/user/${id}`, data),
+  detail: (id: string) => instance.get(`/api/user/${id}`),
+  reset: (id: string, data: any) => instance.put(`/api/user/${id}/reset`, data),
 };
 
 export default userService;

@@ -18,7 +18,7 @@ export default function Recomended({ filter }: { filter: number }) {
       <h3 className="text-2xl font-semibold">Recommended products for you</h3>
       <section className="flex gap-3 items-center mt-4 overflow-x-scroll max-w-layout w-full p-4">
         {data?.data.payload.map((item: Product) => (
-          <Card height={200} width={200} product={item} key={item.id} />
+          <Card height={150} width={150} product={item} key={item.id} />
         ))}
       </section>
     </section>

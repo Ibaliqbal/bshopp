@@ -6,15 +6,28 @@ import {
   NextResponse,
 } from "next/server";
 
-const onlyAdmin = ["/admin", "/products/create_product"];
+export const onlyAdmin = [
+  "/admin",
+  "/admin/products",
+  "/admin/settings",
+  "/admin/users",
+  "/products/create_product",
+];
+
+export const onlyMember = [
+  "/profile",
+  "/profile/cart",
+  "/profile/favorite",
+  "/profile/order",
+];
 
 export default function withAuth(
   middleware: NextMiddleware,
   requireAuth: string[] = []
 ) {
   return async (req: NextRequest, next: NextFetchEvent) => {
-    const pasthname = req.nextUrl.pathname;
-    if (requireAuth.includes(pasthname)) {
+    const pathname = req.nextUrl.pathname;
+    if (requireAuth.includes(pathname)) {
       const token = await getToken({
         secret: process.env.NEXTAUTH_SECRET,
         req,
@@ -25,7 +38,11 @@ export default function withAuth(
         return NextResponse.redirect(url);
       }
 
-      if (token.role !== "admin" && onlyAdmin.includes(pasthname)) {
+      if (token.role !== "admin" && onlyAdmin.includes(pathname)) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+
+      if (token.role !== "member" && onlyMember.includes(pathname)) {
         return NextResponse.redirect(new URL("/", req.url));
       }
     }

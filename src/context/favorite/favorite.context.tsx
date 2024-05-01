@@ -1,10 +1,11 @@
 import { Product } from "@/types/product";
 import { useSession } from "next-auth/react";
 import * as React from "react";
-import { useUsers } from "../user/user.context";
 import { toast } from "sonner";
 import userService from "@/services/users";
 import { User } from "@/types/user";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { firestore } from "@/lib/firebase/services";
 
 type FavoriteContextType = {
   favorite: Product[];
@@ -20,28 +21,33 @@ export const FavoriteProvider = ({
 }: {
   children: React.ReactNode;
 }): React.ReactElement => {
-  const { status } = useSession();
-  const { data } = useSession();
-  const users = useUsers();
+  const { data, status } = useSession();
   const [favoriteProduct, setFavorite] = React.useState<Product[]>([]);
-  const findUser = users?.find((user) => user.email === data?.user?.email);
-
-  async function detail() {
-    if (findUser) {
-      const res = await userService.detailUser(findUser.id);
-      const data = res.data.payload as User;
-      setFavorite(data.favorite);
-    }
-  }
+  const [userId, setUserId] = React.useState("");
 
   React.useEffect(() => {
-    if (findUser) {
-      detail();
-    }
-  }, [users]);
+    const unsub = onSnapshot(
+      query(
+        collection(firestore, "users"),
+        where("email", "==", data?.user?.email ?? "")
+      ),
+      (snaphsot) => {
+        const findUsers = snaphsot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        if (findUsers) {
+          const data = findUsers[0] as User;
+          setFavorite(data?.favorite);
+          setUserId(data?.id);
+        }
+      }
+    );
+    return () => unsub();
+  }, [data]);
 
   const handleFav = async (data: Product) => {
-    if (!findUser?.id) return;
+    if (!userId) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
     } else {
@@ -54,8 +60,7 @@ export const FavoriteProvider = ({
             ? favoriteProduct?.filter((product) => product.id !== data.id)
             : [...favoriteProduct, data],
       };
-      await userService.updateUser(findUser?.id ?? "", update);
-      detail();
+      await userService.update(userId, update);
     }
   };
 
@@ -69,5 +74,5 @@ export const FavoriteProvider = ({
 export const useFavorite = () => {
   const fav = React.useContext(FavoriteContext);
 
-  return fav?.favorite;
+  return fav?.favorite as Product[];
 };
