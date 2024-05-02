@@ -111,7 +111,7 @@ export default function DetailView({
         </div>
         <Button
           className="w-full text-white flex items-center gap-5 justify-center text-4xl"
-          onClick={() => favorite?.handleFav(data)}
+          onClick={() => favorite.handleFav(data)}
         >
           <i
             className={`bx text-3xl transition-all duration-200 ease-out ${
@@ -137,7 +137,7 @@ export default function DetailView({
               name: data.name_product,
               category: data.categories?.label,
             };
-            cart?.handleAdd(cart_data);
+            cart.handleAdd(cart_data);
           }}
         >
           <i className="bx bx-cart-alt text-3xl" />

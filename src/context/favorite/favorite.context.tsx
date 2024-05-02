@@ -55,21 +55,17 @@ export const FavoriteProvider = ({
       toast.error("Please login first");
     } else {
       const findProduct = favoriteProduct?.filter(
-        (product) => product.id === data?.id
+        (product) => product.id === data.id
       );
-      console.log(findProduct);
-      console.log(favoriteProduct);
-      if (findProduct) {
-        const update = {
-          favorite:
-            findProduct?.length > 0
-              ? favoriteProduct?.filter(
-                  (product) => product.id !== findProduct[0]?.id
-                )
-              : [...favoriteProduct, data],
-        };
-        // await userService.update(userId, update);
-      }
+      const update = {
+        favorite:
+          findProduct?.length > 0
+            ? favoriteProduct?.filter(
+                (product) => product.id !== findProduct[0]?.id
+              )
+            : [...favoriteProduct, data],
+      };
+      await userService.update(userId, update);
     }
   };
 
