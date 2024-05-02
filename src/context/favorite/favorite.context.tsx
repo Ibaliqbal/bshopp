@@ -58,6 +58,7 @@ export const FavoriteProvider = ({
         (product) => product.id === data?.id
       );
       console.log(findProduct);
+      console.log(favoriteProduct);
       if (findProduct) {
         const update = {
           favorite:
