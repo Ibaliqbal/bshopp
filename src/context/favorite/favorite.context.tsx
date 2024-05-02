@@ -55,10 +55,10 @@ export const FavoriteProvider = ({
       toast.error("Please login first");
     } else {
       const findProduct = favoriteProduct?.filter(
-        (product) => product.id === data.id
+        (product) => product.id === data?.id
       );
+      console.log(findProduct);
       if (findProduct) {
-        console.log(findProduct);
         const update = {
           favorite:
             findProduct?.length > 0
