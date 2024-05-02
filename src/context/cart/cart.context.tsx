@@ -19,7 +19,15 @@ type CartContextType = {
   ) => Promise<void>;
 };
 
-export const CartContext = React.createContext<CartContextType | null>(null);
+export const CartContext = React.createContext<CartContextType>({
+  data: [],
+  handleAdd: (data: Cart) => Promise.resolve(),
+  handleDelete: (data: string, variant: string) => Promise.resolve(),
+  handleCheckout: (data: string, variant: string) => Promise.resolve(),
+  handleCheckoutAll: () => Promise.resolve(),
+  handleQuantity: (data: string, variant: string, type: "inc" | "dec") =>
+    Promise.resolve(),
+});
 
 export const CartProvider = ({
   children,
@@ -196,5 +204,5 @@ export const CartProvider = ({
 export const useCart = () => {
   const cart = React.useContext(CartContext);
 
-  return cart?.data;
+  return cart.data;
 };

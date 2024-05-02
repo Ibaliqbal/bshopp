@@ -12,9 +12,10 @@ type FavoriteContextType = {
   handleFav: (data: Product) => Promise<void>;
 };
 
-export const FavoriteContext = React.createContext<FavoriteContextType | null>(
-  null
-);
+export const FavoriteContext = React.createContext<FavoriteContextType>({
+  favorite: [],
+  handleFav: (data: any) => new Promise((resolver) => resolver),
+});
 
 export const FavoriteProvider = ({
   children,
@@ -58,7 +59,7 @@ export const FavoriteProvider = ({
       );
       const update = {
         favorite:
-          findProduct.length > 0
+          findProduct?.length > 0
             ? favoriteProduct?.filter((product) => product.id !== data.id)
             : [...favoriteProduct, data],
       };
