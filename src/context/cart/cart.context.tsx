@@ -71,7 +71,7 @@ export const CartProvider = ({
         (product) => product.id === data?.id && product.variant === data.variant
       );
       if (findIndex !== -1) {
-        const findProduct = cartData[findIndex];
+        const findProduct = cartData![findIndex];
         const update = {
           ...findProduct,
           quantity: findProduct?.quantity + 1,
