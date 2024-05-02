@@ -59,7 +59,7 @@ export const CartProvider = ({
       toast.error("Please login first");
       return;
     } else {
-      const findIndex = cartData.findIndex(
+      const findIndex = cartData?.findIndex(
         (product) => product.id === data?.id && product.variant === data.variant
       );
       if (findIndex !== -1) {
@@ -68,7 +68,7 @@ export const CartProvider = ({
           ...findProduct,
           quantity: findProduct?.quantity + 1,
         };
-        const newCart = cartData.with(findIndex, update);
+        const newCart = cartData?.with(findIndex, update);
         const res = await userService.update(userId || "", {
           cart: newCart,
         });
@@ -91,12 +91,12 @@ export const CartProvider = ({
   };
 
   const handleDelete = async (id: string, variant: string) => {
-    const findProduct = cartData.findIndex(
+    const findProduct = cartData?.findIndex(
       (p) => p.id === id && p.variant === variant
     );
     if (findProduct === -1) return;
     const res = await userService.update(userId || "", {
-      cart: cartData.filter((_, i) => i !== findProduct),
+      cart: cartData?.filter((_, i) => i !== findProduct),
     });
     if (res.status === 200) {
       toast.success(res.data.message);
@@ -109,7 +109,7 @@ export const CartProvider = ({
     const res = await userService.update(userId || "", {
       cart: cartData.map((p) => ({
         ...p,
-        checked: cartData.every((p) => p.checked) ? !p.checked : true,
+        checked: cartData?.every((p) => p.checked) ? !p.checked : true,
       })),
     });
     if (res.status === 200) {
@@ -120,7 +120,7 @@ export const CartProvider = ({
   };
 
   const handleCheckout = async (id: string, variant: string) => {
-    const findPorduct = cartData.findIndex(
+    const findPorduct = cartData?.findIndex(
       (p) => p.id === id && p.variant === variant
     );
     if (findPorduct === -1) return;
@@ -150,7 +150,7 @@ export const CartProvider = ({
     variant: string,
     type: "inc" | "dec"
   ) => {
-    const findPorduct = cartData.findIndex(
+    const findPorduct = cartData?.findIndex(
       (p) => p.id === id && p.variant === variant
     );
     if (findPorduct === -1) return;
