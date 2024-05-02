@@ -50,11 +50,11 @@ export const FavoriteProvider = ({
   }, [data]);
 
   const handleFav = async (data: Product) => {
-    console.log(data);
     if (!userId) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
     } else {
+      console.log(data);
       const findProduct = favoriteProduct?.filter(
         (product) => product.id === data.id
       );
@@ -67,7 +67,8 @@ export const FavoriteProvider = ({
                 )
               : [...favoriteProduct, data],
         };
-        await userService.update(userId, update);
+        console.log(update);
+        // await userService.update(userId, update);
       }
     }
   };
