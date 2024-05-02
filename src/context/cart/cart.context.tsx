@@ -71,19 +71,23 @@ export const CartProvider = ({
         (product) => product.id === data?.id && product.variant === data.variant
       );
       if (findIndex !== -1) {
-        const findProduct = cartData![findIndex];
-        const update = {
-          ...findProduct,
-          quantity: findProduct?.quantity + 1,
-        };
-        const newCart = cartData?.with(findIndex, update);
-        const res = await userService.update(userId || "", {
-          cart: newCart,
-        });
-        if (res.status === 200) {
-          toast.success(res.data.message);
-        } else {
-          toast.error(res.data.message);
+        const findProduct = cartData.find(
+          (p) => p.id === data?.id && p.variant === data?.variant
+        );
+        if (findProduct) {
+          const update = {
+            ...findProduct,
+            quantity: findProduct.quantity + 1,
+          };
+          const newCart = cartData?.with(findIndex, update);
+          const res = await userService.update(userId || "", {
+            cart: newCart,
+          });
+          if (res.status === 200) {
+            toast.success(res.data.message);
+          } else {
+            toast.error(res.data.message);
+          }
         }
       } else {
         const res = await userService.update(userId || "", {
