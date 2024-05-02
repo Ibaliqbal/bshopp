@@ -59,18 +59,18 @@ export const CartProvider = ({
       toast.error("Please login first");
       return;
     } else {
-      const findIndex = cartData?.findIndex(
+      const findIndex = cartData.findIndex(
         (product) => product.id === data?.id && product.variant === data.variant
       );
       if (findIndex !== -1) {
         const findProduct = cartData[findIndex];
         const update = {
           ...findProduct,
-          quantity: findProduct.quantity + 1,
+          quantity: findProduct?.quantity + 1,
         };
-        cartData[findIndex] = update;
+        const newCart = cartData.with(findIndex, update);
         const res = await userService.update(userId || "", {
-          cart: cartData,
+          cart: newCart,
         });
         if (res.status === 200) {
           toast.success(res.data.message);

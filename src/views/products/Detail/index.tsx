@@ -126,7 +126,7 @@ export default function DetailView({
           className="w-full text-white flex items-center gap-5 justify-center"
           onClick={() => {
             const cart_data: Cart = {
-              id: data.id,
+              id: data?.id,
               price: selectPrice,
               quantity: 1,
               variant: data.other_specs?.filter(
