@@ -38,8 +38,10 @@ export const FavoriteProvider = ({
         }));
         if (findUsers) {
           const data = findUsers[0] as User;
-          setFavorite(data?.favorite);
-          setUserId(data?.id);
+          if (data) {
+            setFavorite(data.favorite);
+            setUserId(data.id);
+          }
         }
       }
     );

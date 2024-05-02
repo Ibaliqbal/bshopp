@@ -43,8 +43,10 @@ export const CartProvider = ({
         }));
         if (findUsers) {
           const data = findUsers[0] as User;
-          setCart(data?.cart);
-          setUserId(data?.id);
+          if (data) {
+            setCart(data.cart);
+            setUserId(data.id);
+          }
         }
       }
     );
@@ -58,7 +60,7 @@ export const CartProvider = ({
       return;
     } else {
       const findIndex = cartData?.findIndex(
-        (product) => product.id === data.id && product.variant === data.variant
+        (product) => product.id === data?.id && product.variant === data.variant
       );
       if (findIndex !== -1) {
         const findProduct = cartData[findIndex];
@@ -67,7 +69,7 @@ export const CartProvider = ({
           quantity: findProduct.quantity + 1,
         };
         cartData[findIndex] = update;
-        const res = await userService.update(userId, {
+        const res = await userService.update(userId || "", {
           cart: cartData,
         });
         if (res.status === 200) {
@@ -76,7 +78,7 @@ export const CartProvider = ({
           toast.error(res.data.message);
         }
       } else {
-        const res = await userService.update(userId, {
+        const res = await userService.update(userId || "", {
           cart: [...cartData, data],
         });
         if (res.status === 200) {
@@ -93,7 +95,7 @@ export const CartProvider = ({
       (p) => p.id === id && p.variant === variant
     );
     if (findProduct === -1) return;
-    const res = await userService.update(userId, {
+    const res = await userService.update(userId || "", {
       cart: cartData.filter((_, i) => i !== findProduct),
     });
     if (res.status === 200) {
@@ -104,7 +106,7 @@ export const CartProvider = ({
   };
 
   const handleCheckoutAll = async () => {
-    const res = await userService.update(userId, {
+    const res = await userService.update(userId || "", {
       cart: cartData.map((p) => ({
         ...p,
         checked: cartData.every((p) => p.checked) ? !p.checked : true,
@@ -133,7 +135,7 @@ export const CartProvider = ({
       }
     });
 
-    const res = await userService.update(userId, {
+    const res = await userService.update(userId || "", {
       cart: newCart,
     });
     if (res.status === 200) {
@@ -167,7 +169,7 @@ export const CartProvider = ({
         return p;
       }
     });
-    const res = await userService.update(userId, {
+    const res = await userService.update(userId || "", {
       cart: newCart,
     });
     if (res.status === 200) {

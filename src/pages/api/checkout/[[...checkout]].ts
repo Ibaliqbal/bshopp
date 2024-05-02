@@ -1,5 +1,6 @@
 const midtransClient = require("midtrans-client");
 import { firestore } from "@/lib/firebase/services";
+import { createCheckout } from "@/services/checkout/service";
 import { doc, getDoc } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";
@@ -16,6 +17,7 @@ export default async function handler(
   if (req.method === "POST") {
     const user = await getDoc(doc(firestore, "users", req.body?.id));
     const data = req.body;
+    const order_id = uuidv4();
     const id = data?.id;
     const cart = data?.cart;
     const gross_amount = cart.reduce(
@@ -36,7 +38,7 @@ export default async function handler(
       })),
       transaction_details: {
         gross_amount: Number(gross_amount),
-        order_id: uuidv4(),
+        order_id,
       },
       customer_details: {
         first_name: user.data().fullname,
@@ -50,10 +52,38 @@ export default async function handler(
     };
 
     const token = await snap.createTransactionToken(parameter);
-    res.status(200).json({
-      status: true,
-      message: "Success jon",
-      token,
-    });
+
+    await createCheckout(
+      {
+        order_id,
+        user_id: id,
+        token: token,
+        cart: cart,
+        gross_amount: gross_amount,
+        status: "PENDING",
+      },
+      (result: { status: boolean; message: string }) => {
+        if (!result.status)
+          return res.status(400).json({
+            status: result.status,
+            message: result.message,
+          });
+        return res.status(200).json({
+          status: result.status,
+          message: result.message,
+          token,
+        });
+      }
+    );
+  } else if (req.method === "PUT") {
+    const query = req.query.checkout;
+    const data = req.body;
+    if (!query || !data) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Missing parameters" });
+    }
+  } else {
+    res.status(403).json({ status: false, message: "Method not allowed" });
   }
 }

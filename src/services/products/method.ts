@@ -7,12 +7,7 @@ import {
   setData,
 } from "@/lib/firebase/services";
 import { TCreatedProduct } from "@/types/product";
-import {
-  OrderByDirection,
-  orderBy,
-  startAfter,
-  where,
-} from "firebase/firestore";
+import { orderBy, startAfter, where } from "firebase/firestore";
 
 export async function getProducts() {
   const data = await retrieveData("products");

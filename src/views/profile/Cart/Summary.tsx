@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 const Summary = ({ carts }: { carts: Cart[] }) => {
   const { data } = useSession();
-  const { push } = useRouter();
+  const router = useRouter();
   const user: User = useUser();
   const [token, setToken] = useState("");
   const subTotal = carts
@@ -20,7 +20,7 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
   const tax = (subTotal * 4) / 100;
   const { mutate: checkoutHandle } = useMutation({
     mutationFn: async () => {
-      if (!data?.user) return push("/auth/login");
+      if (!data?.user) return router.push("/auth/login");
       const dataCheckout = carts
         .filter((cart) => cart.checked)
         .map((cart) => ({
@@ -49,9 +49,25 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
     if (token) {
       // @ts-expect-error
 
-      window.snap?.pay(token);
+      window.snap?.pay(token, {
+        onSuccess: async () => {
+          router.push("/profile/order");
+          toast.success("Payment successfully");
+        },
+        onPending: () => {
+          router.push("/profile/order");
+          toast.success("Waiting for paymnet");
+        },
+        onError: () => {
+          toast.error("Gagal");
+        },
+        onClose: () => {
+          window.location.assign("/profile/order");
+          toast.error("You have not completed the payment...");
+        },
+      });
     }
-  }, [token, push]);
+  }, [token, router]);
 
   useEffect(() => {
     const mkidtransUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
