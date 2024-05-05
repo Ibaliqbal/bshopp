@@ -12,15 +12,16 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const data = req.body;
+    const data = await req.body;
     const hash = crypto
       .createHash("sha512")
       .update(
         `${data.order_id}${data.status_code}${data.gross_amount}${process.env.MIDTRANS_SERVER_KEY}`
-      );
+      )
+      .digest("hex");
 
     if (data.signature_key !== hash) {
-      return res.status(400).json({
+      return res.status(403).json({
         status: false,
         message: "Invalid Signature",
       });
