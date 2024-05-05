@@ -16,7 +16,7 @@ const ProductsPage = () => {
   const [sortingOption, setSortingOption] = React.useState<number>(0);
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ["products"],
-    queryFn: () => productsServices.getProducts(),
+    queryFn: () => productsServices.get(),
     staleTime: 10000,
   });
 
@@ -81,7 +81,7 @@ const ProductsPage = () => {
         </Sidebar>
         {isLoading ? (
           <div className="w-full h-dvh flex items-center justify-center">
-            <Loader />
+            <Loader className="text-black" />
           </div>
         ) : (
           <ProductsView products={filterProducts} />

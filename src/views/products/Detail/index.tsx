@@ -184,7 +184,7 @@ export default function DetailView({
             })}
           </section>
           <Link
-            href={`/products/comment/${data.id}`}
+            href={`/products/${data.id}/comments`}
             className="underline underline-offset-8 decoration-2"
           >
             More reviews

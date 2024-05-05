@@ -5,6 +5,7 @@ import {
   retrieveDataByField,
   retrievePaginationData,
   setData,
+  updateData,
 } from "@/lib/firebase/services";
 import { TCreatedProduct } from "@/types/product";
 import { orderBy, startAfter, where } from "firebase/firestore";
@@ -95,4 +96,11 @@ export async function searchAndPaginateProducts(
   );
 
   return products;
+}
+
+export async function updateProduct(id: string, data: any, callback: Function) {
+  await updateData("products", id, data, (result: boolean) => {
+    if (!result) callback({ status: result, message: "Wrong id product" });
+    return callback({ status: result, message: "Product updated" });
+  });
 }

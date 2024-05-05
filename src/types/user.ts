@@ -30,7 +30,6 @@ export type User = {
   district?: TOption;
   phone?: number;
   spesifik_address?: string;
-  order?: any[];
 };
 
 export const loginSchema = z.object({
@@ -44,12 +43,12 @@ export const optionAddressSchema = z.object({
 });
 
 export const schema = z.object({
-  fullname: z.string(),
+  fullname: z.string().nullable(),
   province: optionAddressSchema.nullable(),
   city: optionAddressSchema.nullable(),
   district: optionAddressSchema.nullable(),
-  phone: z.number(),
-  spesifik: z.string(),
+  phone: z.number().nullable(),
+  spesifik: z.string().nullable(),
 });
 
 export type TOption = z.infer<typeof optionAddressSchema>;

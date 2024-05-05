@@ -38,8 +38,8 @@ export type TCreatedProduct = {
   name_product: string;
   description: string;
   categories: { value: number; label: string } | null;
-  comments: [];
-  soldout: number;
+  comments?: [];
+  soldout?: number;
   photo_product: string[];
   other_specs: OtherSpec[];
 };

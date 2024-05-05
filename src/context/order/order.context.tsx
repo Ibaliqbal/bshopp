@@ -3,9 +3,10 @@ import { User } from "@/types/user";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import * as React from "react";
+import { useUser } from "../user/user.context";
 
 type OrderContextType = {
-  order: any[] | undefined;
+  order: any[];
 };
 
 export const OrderContext = React.createContext<OrderContextType>({
@@ -17,29 +18,28 @@ export const OrderProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const [order, setOrder] = React.useState<any[] | undefined>([]);
-  const { data } = useSession();
+  const [order, setOrder] = React.useState<any[]>([]);
+  const user: User = useUser();
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(
-        collection(firestore, "users"),
-        where("email", "==", data?.user?.email ?? "")
+        collection(firestore, "checkouts"),
+        where("user_id", "==", user?.id ?? "")
       ),
       (snapshot) => {
-        const findUsers = snapshot.docs.map((doc) => ({
+        const checkouts = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        if (findUsers) {
-          const data = findUsers[0] as User;
-          setOrder(data?.order);
+        if (checkouts) {
+          setOrder(checkouts);
         }
       }
     );
     return () => {
       unsub();
     };
-  }, [data]);
+  }, [user]);
 
   return (
     <OrderContext.Provider value={{ order }}>{children}</OrderContext.Provider>

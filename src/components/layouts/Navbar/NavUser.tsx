@@ -34,7 +34,11 @@ export default function NavUser() {
             ) : null}
           </Link>
         </>
-      ) : null}
+      ) : (
+        <Link href={"/admin"} className="text-xl">
+          Dashboard
+        </Link>
+      )}
       <div className="relative md:block">
         <button
           className={`rounded-xl py-2 ${

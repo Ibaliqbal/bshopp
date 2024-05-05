@@ -1,4 +1,3 @@
-const midtransClient = require("midtrans-client");
 import { retrieveDataByField, sortedData } from "@/lib/firebase/services";
 import {
   createProduct,
@@ -9,8 +8,10 @@ import {
   paginationProdcuts,
   searchAndPaginateProducts,
   searchProducts,
+  updateProduct,
 } from "@/services/products/method";
 import { Product } from "@/types/product";
+import axios from "axios";
 import { serverTimestamp, where } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -22,12 +23,6 @@ type Data = {
   total?: number;
 };
 
-let snap = new midtransClient.Snap({
-  isProducttion: false,
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
-});
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
@@ -37,7 +32,6 @@ export default async function handler(
     const querySearch = req.query.q;
     const queryLimit = req.query._limit;
     const queryStart = req.query._start;
-    const querySort = req.query._sort;
     const queryFilter = req.query._filter;
 
     if (!queryProduct) {
@@ -264,6 +258,29 @@ export default async function handler(
           res
             .status(200)
             .json({ status: response.status, message: response.message });
+        }
+      );
+    }
+  } else if (req.method === "PUT") {
+    const query = req.query.products;
+    let data = req.body;
+    if (query) {
+      data.updatedAt = serverTimestamp();
+      await updateProduct(
+        query[0],
+        data,
+        (result: { status: boolean; message: string }) => {
+          if (result.status) {
+            res.status(200).json({
+              status: result.status,
+              message: result.message,
+            });
+          } else {
+            res.status(400).json({
+              status: result.status,
+              message: result.message,
+            });
+          }
         }
       );
     }

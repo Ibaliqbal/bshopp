@@ -54,7 +54,7 @@ export async function detailData(
     };
     callback({ status: true, data });
   } else {
-    callback({ status: false, data: [] });
+    callback({ status: false, data: {} });
   }
 }
 
@@ -106,9 +106,11 @@ export async function retrievePaginationData(
 export async function setData(
   collectionName: string,
   data: any,
-  callback: Function
+  callback: Function,
+  id?: string
 ) {
-  await setDoc(doc(firestore, collectionName, uuidv4()), data)
+  const dataId = id ? id : uuidv4();
+  await setDoc(doc(firestore, collectionName, dataId), data)
     .then(() => callback(true))
     .catch(() => callback(false));
 }

@@ -9,6 +9,8 @@ import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import ProfileLayout from "@/components/layouts/ProfileLayout";
 import Summary from "./Summary";
+import { AlertDelete } from "@/lib/sweetalert/alert";
+import { toast } from "sonner";
 
 export default function CartView() {
   const carts = useCart();
@@ -111,7 +113,14 @@ export default function CartView() {
                       <i
                         className="bx bx-trash cursor-pointer text-xl"
                         onClick={() =>
-                          method?.handleDelete(cart.id, cart.variant as string)
+                          AlertDelete((result: boolean) =>
+                            result
+                              ? method?.handleDelete(
+                                  cart.id,
+                                  cart.variant as string
+                                )
+                              : toast.error("Error, please try again")
+                          )
                         }
                       />
                     </div>
@@ -136,7 +145,10 @@ export default function CartView() {
               priority
             />
             <h3 className="font-semibold text-xl">
-              No cart, please select product
+              No cart, please select{" "}
+              <Link className="text-blue-600" href={"/products"}>
+                product
+              </Link>
             </h3>
           </div>
         </section>

@@ -47,7 +47,7 @@ const HomeView = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   async function fetchProducts() {
-    const response = await productsServices.getProducts();
+    const response = await productsServices.get();
     const products = response.data.payload;
     const data = randomProduct(products, 5) as Product[];
     setProducts(data);

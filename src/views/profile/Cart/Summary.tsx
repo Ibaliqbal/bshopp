@@ -1,6 +1,11 @@
 import Button from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 import { useUser } from "@/context/user/user.context";
 import { checkoutService } from "@/services/checkout";
+import { ordersService } from "@/services/orders";
+import { productsServices } from "@/services/products";
+import userService from "@/services/users";
+import { OtherSpec } from "@/types/product";
 import { Cart, User } from "@/types/user";
 import { converPrice } from "@/utils/convertPrice";
 import { useMutation } from "@tanstack/react-query";
@@ -13,12 +18,13 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
   const { data } = useSession();
   const router = useRouter();
   const user: User = useUser();
+  const [checkoutProducts, setCheckoutProducts] = useState<any>();
   const [token, setToken] = useState("");
   const subTotal = carts
     ?.filter((c) => c.checked)
     .reduce((acc, curr) => acc + curr.price * curr.quantity, 0) as number;
   const tax = (subTotal * 4) / 100;
-  const { mutate: checkoutHandle } = useMutation({
+  const { mutate: checkoutHandle, isPending } = useMutation({
     mutationFn: async () => {
       if (!data?.user) return router.push("/auth/login");
       const dataCheckout = carts
@@ -36,12 +42,30 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
         id: user?.id || "",
         cart: dataCheckout,
       };
-      const { data: result } = await checkoutService.pay(newData);
+      setCheckoutProducts(newData);
 
-      return result;
+      const update = carts.filter((cart) => !cart.checked);
+      const [result] = await Promise.all([
+        checkoutService.pay(newData),
+        userService.update(user?.id, { cart: update }),
+      ]);
+
+      return result.data;
     },
-    onSuccess: (result) => {
-      setToken(result.token);
+    onSuccess: async (result) => {
+      const newOrder = {
+        ...checkoutProducts,
+        token: result.token,
+        order_id: result.order_id,
+        status: "PENDING",
+      };
+      setCheckoutProducts(newOrder);
+      const res = await ordersService.create(newOrder);
+      if (res.data.status) {
+        setToken(result.token);
+      } else {
+        toast.error(res.data.message);
+      }
     },
   });
 
@@ -107,10 +131,11 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
       </div>
       <Button
         sizes="sm"
-        className="w-full text-white mt-5 font-semibold"
+        disabled={isPending || carts.filter((cart) => cart.checked).length <= 0}
+        className="w-full text-white mt-5 font-semibold flex items-center justify-center disabled:cursor-not-allowed"
         onClick={() => checkoutHandle()}
       >
-        Checkout
+        {isPending ? <Loader className="text-white" /> : "Checkout"}
       </Button>
     </div>
   );

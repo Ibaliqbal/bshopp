@@ -1,30 +1,50 @@
-import { OtherSpec, TCreatedProduct, TSchema, schema } from "@/types/product";
+import FormProduct from "@/components/Fragments/FormProduct";
+import { productsServices } from "@/services/products";
+import { OtherSpec, schema, TCreatedProduct, TSchema } from "@/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useRef, useState } from "react";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { productsServices } from "@/services/products";
-import FormProduct from "@/components/Fragments/FormProduct";
 
-const ProductCreateView = () => {
+type Props = {
+  id: string;
+};
+
+const EditView = ({ id }: Props) => {
   const { back } = useRouter();
-  const [stock, setStock] = useState<OtherSpec[]>([]);
-  const sizeRef = useRef<HTMLInputElement>(null);
-  const stockRef = useRef<HTMLInputElement>(null);
-  const priceRef = useRef<HTMLInputElement>(null);
-  const [photoProduct, setPhotoProduct] = useState<string[]>([]);
-  const [progress, setProgress] = useState<number>(0);
+  const [stock, setStock] = React.useState<OtherSpec[]>([]);
+  const sizeRef = React.useRef<HTMLInputElement>(null);
+  const stockRef = React.useRef<HTMLInputElement>(null);
+  const priceRef = React.useRef<HTMLInputElement>(null);
+  const [photoProduct, setPhotoProduct] = React.useState<string[]>([]);
+  const [progress, setProgress] = React.useState<number>(0);
   const {
     control,
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { isSubmitting },
   } = useForm<TSchema>({
     resolver: zodResolver(schema),
   });
+
+  async function fetchPorduct() {
+    const res = await productsServices.detail(id);
+    const data = res.data.payload;
+    setPhotoProduct(data.photo_product);
+    setStock(data.other_specs);
+    setValue("name_product", data.name_product);
+    setValue("description", data.description);
+    setValue("categories", data.categories);
+  }
+
+  React.useEffect(() => {
+    if (id) {
+      fetchPorduct();
+    }
+  }, [id]);
 
   const handleCreateProduct = async (data: TSchema) => {
     if (photoProduct.length <= 0)
@@ -35,23 +55,14 @@ const ProductCreateView = () => {
       ...data,
       other_specs: stock,
       photo_product: photoProduct,
-      comments: [],
-      soldout: 0,
     };
-    const res = await productsServices.create(data_product);
-    if (res.status === 201) {
+    const res = await productsServices.update(id, data_product);
+    if (res.status === 200) {
       toast.success(res.data.message);
-      reset();
-      setPhotoProduct([]);
-      setStock([]);
     } else {
       toast.error(res.data.message);
-      reset();
-      setPhotoProduct([]);
-      setStock([]);
     }
   };
-
   return (
     <main>
       <i
@@ -109,4 +120,4 @@ const ProductCreateView = () => {
   );
 };
 
-export default ProductCreateView;
+export default EditView;

@@ -7,8 +7,7 @@ import React from "react";
 export default function Recomended({ filter }: { filter: number }) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["recomended", filter],
-    queryFn: () =>
-      productsServices.getRecomendedProducts(filter.toString(), "desc"),
+    queryFn: () => productsServices.recomended(filter.toString(), "desc"),
     staleTime: 60 * 60 * 24,
   });
   if (isLoading) return <p>Loading....</p>;

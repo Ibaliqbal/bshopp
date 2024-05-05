@@ -6,6 +6,7 @@ import { mensOption, Product, womensOption } from "@/types/product";
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 export default function FavoriteView() {
   const fav = useFavorite();
   const [products, setProducts] = React.useState<Product[]>([]);
@@ -86,7 +87,10 @@ export default function FavoriteView() {
                 priority
               />
               <h3 className="font-semibold text-xl">
-                No favorite, please select product
+                No favorite, please select{" "}
+                <Link href={"/products"} className="text-blue-600">
+                  product
+                </Link>
               </h3>
             </div>
           </section>

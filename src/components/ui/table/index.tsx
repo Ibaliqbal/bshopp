@@ -59,7 +59,6 @@ export default function Table<TData, TValue>({
               )
               ?.setFilterValue(e.target.value)
           }
-          disabled={!table.getRowModel().rows.length}
         />
         {title === "Products Management" && (
           <Button

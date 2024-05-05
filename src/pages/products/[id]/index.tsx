@@ -16,7 +16,7 @@ const DetailProductPage = () => {
   const [selectPrice, setSelectPrice] = useState<number>(0);
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ["detailProduct", id],
-    queryFn: () => productsServices.detailProduct((id as string) ?? ""),
+    queryFn: () => productsServices.detail((id as string) ?? ""),
     staleTime: 10000,
   });
 
@@ -28,7 +28,7 @@ const DetailProductPage = () => {
   if (isLoading)
     return (
       <div className="w-full h-dvh flex items-center justify-center">
-        <Loader />
+        <Loader className="text-black" />
       </div>
     );
   if (isError) return <p>{error.message}</p>;

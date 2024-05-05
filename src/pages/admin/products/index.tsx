@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 const AdminProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const getProducts = async () => {
-    const res = await productsServices.getProducts();
+    const res = await productsServices.get();
     const data = res.data.payload;
     setProducts(data);
   };

@@ -1,7 +1,13 @@
 const midtransClient = require("midtrans-client");
 import { firestore } from "@/lib/firebase/services";
-import { createCheckout } from "@/services/checkout/service";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  createCheckout,
+  filterOrder,
+  getUserOrders,
+  TStatus,
+  updateCheckout,
+} from "@/services/checkout/service";
+import { doc, getDoc, serverTimestamp } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";
 
@@ -71,9 +77,11 @@ export default async function handler(
         return res.status(200).json({
           status: result.status,
           message: result.message,
+          order_id,
           token,
         });
-      }
+      },
+      order_id
     );
   } else if (req.method === "PUT") {
     const query = req.query.checkout;
@@ -82,6 +90,44 @@ export default async function handler(
       return res
         .status(400)
         .json({ status: false, message: "Missing parameters" });
+    }
+    await updateCheckout(
+      query[0],
+      data,
+      (result: { status: boolean; message: string }) => {
+        if (!result.status)
+          return res
+            .status(400)
+            .json({ status: result.status, message: result.message });
+        return res
+          .status(200)
+          .json({ status: result.status, message: result.message });
+      }
+    );
+  } else if (req.method === "GET") {
+    const query = req.query.checkout;
+    const status = req.query.status;
+    console.log(status);
+    if (!query) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Missing parameters" });
+    } else {
+      if (status) {
+        const checkout = await filterOrder(query[0], status as TStatus);
+        res.status(200).json({
+          status: true,
+          message: `Successfully filtered ${status}`,
+          payload: checkout,
+        });
+      } else {
+        const checkout = await getUserOrders(query[0]);
+        res.status(200).json({
+          status: true,
+          message: "Successfully",
+          payload: checkout,
+        });
+      }
     }
   } else {
     res.status(403).json({ status: false, message: "Method not allowed" });

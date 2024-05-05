@@ -3,11 +3,10 @@ import { TCreatedProduct } from "@/types/product";
 import { OrderByDirection } from "firebase/firestore";
 
 export const productsServices = {
-  getProducts: () => instance.get("/api/products"),
-  createProduct: (data: TCreatedProduct) =>
-    instance.post("/api/products", data),
-  detailProduct: (id: string) => instance.get(`/api/products/${id}`),
-  deleteProduct: (id: string) => instance.delete(`/api/products/${id}`),
+  get: () => instance.get("/api/products"),
+  create: (data: TCreatedProduct) => instance.post("/api/products", data),
+  detail: (id: string) => instance.get(`/api/products/${id}`),
+  delete: (id: string) => instance.delete(`/api/products/${id}`),
   getProductsPaginations: (start: number, limit: number) =>
     instance.get(`/api/products?_start=${start}&_limit=${limit}`),
   getProductsSearchAndPagination: (
@@ -24,8 +23,8 @@ export const productsServices = {
     sort: "desc" | "asc"
   ) =>
     instance.get(`/api/products?_start=${start}&_limit=${limit}&_sort=${sort}`),
-  getSearchProducts: (params: string) =>
-    instance.get(`/api/products/search?q=${params}`),
-  getRecomendedProducts: (filter: string, sort: OrderByDirection) =>
+  search: (params: string) => instance.get(`/api/products/search?q=${params}`),
+  recomended: (filter: string, sort: OrderByDirection) =>
     instance.get(`/api/products?_filter=${filter}`),
+  update: (id: string, data: any) => instance.put(`/api/products/${id}`, data),
 };

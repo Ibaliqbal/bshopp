@@ -14,6 +14,7 @@ export default function FormSearch() {
       className="flex gap-2 items-center border-b-2 border-b-black pb-2"
       onSubmit={(e) => {
         e.preventDefault();
+        if (!searchProducts || searchProducts.trim() === "") return;
         push(`/products/search?q=${searchProducts}`);
       }}
     >
@@ -22,6 +23,7 @@ export default function FormSearch() {
         name="search"
         type="text"
         placeholder="Search"
+        value={searchProducts || ""}
         onChange={(e) => setSearchProducts(e.target.value)}
       />
       <button

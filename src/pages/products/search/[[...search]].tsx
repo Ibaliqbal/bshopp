@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layouts/SidebarHome";
 import Button from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
 import { Product, mensOption, womensOption } from "@/types/product";
 import ProductsView from "@/views/products";
@@ -33,7 +34,7 @@ const SearchProductPage = () => {
   // const limit = 1;
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["searchProduct", params],
-    queryFn: () => productsServices.getSearchProducts(params),
+    queryFn: () => productsServices.search(params),
     staleTime: 10000,
   });
   const [filterDatas, setFilterDatas] = useState<Product[]>([]);
@@ -68,7 +69,12 @@ const SearchProductPage = () => {
       setFilterDatas(findProduct);
     }
   };
-  if (isLoading) return <p>Loading....</p>;
+  if (isLoading)
+    return (
+      <div className="w-full h-dvh flex items-center justify-center">
+        <Loader className="text-black" />
+      </div>
+    );
   if (isError) return <p>{error.message}</p>;
   return (
     <>
