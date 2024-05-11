@@ -1,4 +1,5 @@
 import ProfileLayout from "@/components/layouts/ProfileLayout";
+import Chart from "@/components/Porfile/Chart";
 import FormReset from "@/components/Porfile/FormReset";
 import FormUser from "@/components/Porfile/FormUser";
 import Button from "@/components/ui/button";
@@ -22,7 +23,7 @@ export default function ProfileView() {
     <ProfileLayout>
       <div className="w-full pt-4 pb-24">
         <h1 className="text-2xl font-bold">Profile</h1>
-        <div className="grid grid-cols-3 gap-2 mt-6">
+        <div className="md:grid flex flex-col md:grid-cols-3 gap-2 mt-6">
           <div className="col-span-1 h-fit rounded-md p-4 border-2 border-slate-700 flex flex-col items-center gap-6">
             <h3 className="text-xl font-semibold">AVATAR</h3>
             <Image
@@ -86,6 +87,7 @@ export default function ProfileView() {
           <FormUser user={user} />
         </div>
         <FormReset user={user} />
+        <Chart />
       </div>
     </ProfileLayout>
   );

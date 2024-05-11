@@ -189,6 +189,7 @@ export const CartProvider = ({
     } else {
     }
   };
+
   return (
     <CartContext.Provider
       value={{

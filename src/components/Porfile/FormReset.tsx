@@ -1,39 +1,47 @@
-import React from "react";
+import React, { useRef } from "react";
 import Label from "../ui/label";
 import Input from "../ui/input";
 import Button from "../ui/button";
 import { User } from "@/types/user";
 import userService from "@/services/users";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 const FormReset = ({ user }: { user: User }) => {
   const [message, setMessage] = React.useState("");
-  const resetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    if (!user.id) return;
-    const form = e.target as HTMLFormElement;
-    const oldPw = form.old.value;
-    const newPw = form.new.value;
-    if (!oldPw || oldPw.trim() === "" || !newPw || newPw.trim() === "") {
-      setMessage("Input required");
-      return;
-    }
-    const res = await userService.reset(user.id, {
-      old: oldPw,
-      new: newPw,
-      pw: user.password,
-    });
-    if (res.data.statusCode === 200) {
-      toast.success(res.data.message);
-      form.reset();
-    } else {
-      setMessage(res.data.message);
-    }
-  };
+  const formRef = useRef<HTMLFormElement>(null);
+  const { isPending, mutate: reset } = useMutation({
+    mutationFn: async (data: { old: string; new: string }) => {
+      const res = await userService.reset(user.id, {
+        old: data.old,
+        new: data.new,
+        pw: user.password,
+      });
+
+      return res;
+    },
+    onSuccess: (res) => {
+      if (res.data.statusCode === 200) {
+        toast.success(res.data.message);
+        formRef.current?.reset();
+      } else {
+        setMessage(res.data.message);
+      }
+    },
+  });
+
   return (
     <form
-      onSubmit={resetPassword}
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault();
+        setMessage("");
+        if (!user.id) return;
+        const form = e.target as HTMLFormElement;
+        const oldPw = form.old.value;
+        const newPw = form.new.value;
+        reset({ old: oldPw, new: newPw });
+      }}
       className="w-full mt-4 flex flex-col gap-5 p-4 rounded-md border-2 border-slate-700"
     >
       <h3 className="text-xl font-semibold">Reset password</h3>
@@ -63,8 +71,16 @@ const FormReset = ({ user }: { user: User }) => {
           className="px-4 py-3 border-b-2 border-b-black focus:outline-none"
         />
       </div>
-      <Button className="self-end text-white" sizes="sm">
-        Change
+      <Button
+        className="self-end text-white flex items-center justify-center disabled:bg-opacity-60"
+        sizes="sm"
+        disabled={isPending}
+      >
+        {isPending ? (
+          <i className="bx bx-loader-alt text-2xl animate-spin" />
+        ) : (
+          "Change"
+        )}
       </Button>
     </form>
   );

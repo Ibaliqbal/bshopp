@@ -1,10 +1,21 @@
 import { TStatus } from "@/services/checkout/service";
+import { Timestamp } from "firebase/firestore";
 
+export type ChcekoutCart = {
+  category: string;
+  id: string;
+  name: string;
+  photo: string;
+  price: number;
+  qty: number;
+  variant: string;
+};
 export type TCheckout = {
-  cart: any[];
+  cart: ChcekoutCart[];
   order_id: string;
   user_id: string;
   status: TStatus;
   gross_amount: number;
   token: string;
+  checkoutAt: Timestamp;
 };

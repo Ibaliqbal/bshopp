@@ -1,4 +1,9 @@
-import { detailData, setData, updateData } from "@/lib/firebase/services";
+import {
+  detailData,
+  retrieveData,
+  setData,
+  updateData,
+} from "@/lib/firebase/services";
 import { serverTimestamp } from "firebase/firestore";
 
 export async function createOrder(data: any, callaback: Function) {
@@ -35,4 +40,14 @@ export async function getOrderById(orderId: string, callback: Function) {
       return callback({ status: result.status, data: result.data });
     }
   );
+}
+
+export async function getOrders() {
+  const data = await retrieveData("orders");
+
+  if (data) {
+    return data;
+  } else {
+    return null;
+  }
 }

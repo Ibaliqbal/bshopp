@@ -47,24 +47,24 @@ export default async function handler(
         const updateProducts = order?.cart.map(async (cart: any) => {
           const product = await getDoc(doc(firestore, "products", cart.id));
           if (product.exists()) {
-            const updateStock = product
+            const findIndexSpec = product
               .data()
-              .other_specs.map((spec: OtherSpec) => {
-                if (spec.size !== cart.variant) {
-                  return spec;
-                } else {
-                  return {
-                    ...spec,
-                    stock: spec.stock - cart.quantity,
-                    soldout: spec.soldout + cart.qty,
-                  };
-                }
-              });
+              .other_specs.findIndex(
+                (spec: OtherSpec) => spec.size === cart.variant
+              );
             await updateProduct(
               product.id,
               {
-                other_specs: updateStock,
-                soldout: product.data().soldout + cart.quantity,
+                other_specs: product.data().other_specs.with(findIndexSpec, {
+                  soldout:
+                    product.data().other_specs[findIndexSpec].soldout +
+                    Number(cart?.qty),
+                  stock:
+                    product.data().other_specs[findIndexSpec].stock -
+                    Number(cart?.qty),
+                  ...product.data().other_specs[findIndexSpec],
+                }),
+                soldout: product.data().soldout + Number(cart?.qty),
               },
               () => {}
             );
@@ -96,24 +96,24 @@ export default async function handler(
       const updateProducts = order?.cart.map(async (cart: any) => {
         const product = await getDoc(doc(firestore, "products", cart.id));
         if (product.exists()) {
-          const updateStock = product
+          const findIndexSpec = product
             .data()
-            .other_specs.map((spec: OtherSpec) => {
-              if (spec.size !== cart.variant) {
-                return spec;
-              } else {
-                return {
-                  ...spec,
-                  stock: spec.stock - cart.quantity,
-                  soldout: spec.soldout + cart.qty,
-                };
-              }
-            });
+            .other_specs.findIndex(
+              (spec: OtherSpec) => spec.size === cart.variant
+            );
           await updateProduct(
             product.id,
             {
-              other_specs: updateStock,
-              soldout: product.data().soldout + cart.quantity,
+              other_specs: product.data().other_specs.with(findIndexSpec, {
+                ...product.data().other_specs[findIndexSpec],
+                stock:
+                  product.data().other_specs[findIndexSpec].stock -
+                  Number(cart?.qty),
+                soldout:
+                  product.data().other_specs[findIndexSpec].soldout +
+                  Number(cart?.qty),
+              }),
+              soldout: product.data().soldout + Number(cart?.qty),
             },
             () => {}
           );

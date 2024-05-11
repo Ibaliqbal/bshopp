@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import TextGenerateEffect from "@/components/ui/text-generate-effect";
 import { productsServices } from "@/services/products";
 import { Product } from "@/types/product";
 import Link from "next/link";

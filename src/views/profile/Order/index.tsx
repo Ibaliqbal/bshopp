@@ -6,8 +6,6 @@ import { useUser } from "@/context/user/user.context";
 import { checkoutService } from "@/services/checkout";
 import { TStatus } from "@/services/checkout/service";
 import { User } from "@/types/user";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 

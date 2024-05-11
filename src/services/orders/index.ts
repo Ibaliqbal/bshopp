@@ -4,4 +4,5 @@ export const ordersService = {
   update: (id: string, data: any) => instance.put(`/api/order/${id}`, data),
   delete: (id: string) => instance.delete(`/api/order/${id}`),
   create: (data: any) => instance.post("/api/order", data),
+  get: () => instance.get("/api/order"),
 };

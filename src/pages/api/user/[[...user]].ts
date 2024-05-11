@@ -9,7 +9,6 @@ import {
 } from "@/services/users/service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
-import userService from "@/services/users";
 import { compare } from "bcrypt";
 import bcrypt from "bcrypt";
 
@@ -121,13 +120,11 @@ export default async function handler(
               .status(200)
               .json({ status: true, statusCode: 200, message: result.message });
           } else {
-            return res
-              .status(200)
-              .json({
-                status: false,
-                statusCode: 400,
-                message: result.message,
-              });
+            return res.status(200).json({
+              status: false,
+              statusCode: 400,
+              message: result.message,
+            });
           }
         }
       );

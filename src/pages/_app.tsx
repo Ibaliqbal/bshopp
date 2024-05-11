@@ -11,6 +11,8 @@ import { FavoriteProvider } from "@/context/favorite/favorite.context";
 import { CartProvider } from "@/context/cart/cart.context";
 import { UserProvider } from "@/context/user/user.context";
 import { OrderProvider } from "@/context/order/order.context";
+import { Provider } from "react-redux";
+import { store } from "@/lib/redux/store";
 
 const queryClient = new QueryClient();
 
@@ -27,18 +29,20 @@ export default function App({
         />
       </Head>
       <QueryClientProvider client={queryClient}>
-        <UserProvider>
-          <FavoriteProvider>
-            <CartProvider>
-              <OrderProvider>
-                <AppShell>
-                  <Component {...pageProps} />
-                  <Toaster position="top-center" richColors duration={2000} />
-                </AppShell>
-              </OrderProvider>
-            </CartProvider>
-          </FavoriteProvider>
-        </UserProvider>
+        <Provider store={store}>
+          <UserProvider>
+            <FavoriteProvider>
+              <CartProvider>
+                <OrderProvider>
+                  <AppShell>
+                    <Component {...pageProps} />
+                    <Toaster position="top-center" richColors duration={2000} />
+                  </AppShell>
+                </OrderProvider>
+              </CartProvider>
+            </FavoriteProvider>
+          </UserProvider>
+        </Provider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </SessionProvider>

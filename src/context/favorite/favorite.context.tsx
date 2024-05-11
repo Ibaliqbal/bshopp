@@ -14,7 +14,7 @@ type FavoriteContextType = {
 
 export const FavoriteContext = React.createContext<FavoriteContextType>({
   favorite: [],
-  handleFav: (data: any) => new Promise((resolver) => resolver),
+  handleFav: (data: Product) => new Promise((resolver) => resolver),
 });
 
 export const FavoriteProvider = ({

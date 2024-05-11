@@ -9,7 +9,6 @@ import axios from "axios";
 import { schema, TOption, TSchema, User } from "@/types/user";
 import userService from "@/services/users";
 import { toast } from "sonner";
-
 const FormUser = ({ user }: { user: User }) => {
   const [provinces, setProvinces] = useState<Options<TOption>>(
     [] as Options<TOption>

@@ -35,7 +35,6 @@ export const UserProvider = ({
         }
       }
     );
-
     return () => unsub();
   }, [data]);
 

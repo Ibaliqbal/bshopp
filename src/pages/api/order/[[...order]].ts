@@ -1,4 +1,4 @@
-import { createOrder, updateOrder } from "@/services/orders/service";
+import { createOrder, getOrders, updateOrder } from "@/services/orders/service";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handle(
@@ -40,6 +40,27 @@ export default async function handle(
           }
         }
       );
+    }
+  } else if (req.method === "GET") {
+    const query = req.query.order;
+    const status = req.query.status;
+    if (!query) {
+      const data = await getOrders();
+      if (data) {
+        return res.status(200).json({
+          status: true,
+          message: "Successfully",
+          payload: data,
+          statusCode: 200,
+        });
+      } else {
+        return res.status(400).json({
+          status: false,
+          statusCode: 400,
+          payload: [],
+          message: "Get orders failed",
+        });
+      }
     }
   } else {
     res.status(405).json({

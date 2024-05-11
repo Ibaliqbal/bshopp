@@ -107,7 +107,6 @@ export default async function handler(
   } else if (req.method === "GET") {
     const query = req.query.checkout;
     const status = req.query.status;
-    console.log(status);
     if (!query) {
       return res
         .status(400)

@@ -30,7 +30,7 @@ export default function DetailView({
   setSelectedImage: React.Dispatch<React.SetStateAction<string>>;
   setSelectPrice: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const favorite = useContext(FavoriteContext);
+  const fav = useContext(FavoriteContext);
   const cart = useContext(CartContext);
   return (
     <motion.section className="flex flex-wrap justify-between mb-8 border-b-2 border-b-black pb-3">
@@ -111,11 +111,11 @@ export default function DetailView({
         </div>
         <Button
           className="w-full text-white flex items-center gap-5 justify-center text-4xl"
-          onClick={() => favorite.handleFav(data)}
+          onClick={() => fav.handleFav(data)}
         >
           <i
             className={`bx text-3xl transition-all duration-200 ease-out ${
-              favorite?.favorite?.find((product) => product.id === data.id)
+              fav?.favorite?.find((product) => product.id === data.id)
                 ? "bxs-heart text-red-500"
                 : "bx-heart"
             }`}
