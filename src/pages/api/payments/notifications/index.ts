@@ -55,7 +55,7 @@ export default async function handler(
                 } else {
                   return {
                     ...spec,
-                    stock: spec.stock - cart.quantity,
+                    stock: spec.stock - cart.qty,
                     soldout: spec.soldout + cart.qty,
                   };
                 }
@@ -64,7 +64,7 @@ export default async function handler(
               product.id,
               {
                 other_specs: updateStock,
-                soldout: product.data().soldout + cart.quantity,
+                soldout: product.data().soldout + cart.qty,
               },
               () => {}
             );
