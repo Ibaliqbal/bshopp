@@ -83,16 +83,18 @@ const Chart = () => {
   const thisYear = new Date().getFullYear();
   const user: User = useUser();
   const queryClient = useQueryClient();
-  const [year, setYear] = React.useState<{
-    value: number;
-    label: string;
-  }>({
+  const [year, setYear] = React.useState<
+    SingleValue<{
+      value: number;
+      label: string;
+    }>
+  >({
     value: new Date().getFullYear(),
     label: new Date().getFullYear().toString(),
   });
   const { data: checkout, isLoading } = useQuery({
     queryKey: ["chart-checkout"],
-    queryFn: () => fetchCheckout(user?.id, year.value),
+    queryFn: () => fetchCheckout(user?.id, year?.value ?? 0),
     enabled: !!user,
   });
   const { mutate: changeYear } = useMutation({
