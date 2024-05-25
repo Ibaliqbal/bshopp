@@ -15,7 +15,7 @@ export default function NavResponsive({
     href: string;
     name: string;
   }[];
-  data: Session;
+  data: Session | null;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const fav = useFavorite();
