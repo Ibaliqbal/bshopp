@@ -37,7 +37,7 @@ export default async function handler(
 
     if (!queryProduct) {
       if (queryStart && queryLimit) {
-        const datas = await sortedData("products", "createdAt", "desc");
+        const datas = await sortedData("products", "createdAt");
         if (datas.length < 0)
           return res.status(200).json({ status: false, message: "gagal 100" });
         if (parseInt(queryStart[0]) > 1) {
