@@ -5,70 +5,49 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
+import OrderCard from "../Fragments/OrderCard";
+import { useMutation } from "@tanstack/react-query";
+import Loader from "../ui/loader";
+import { checkoutService } from "@/services/checkout";
+import { ordersService } from "@/services/orders";
+import { listVariants, variants } from "@/utils/animAction";
 
-const OrderList = ({ order }: { order: any[] }) => {
+const OrderList = ({ order }: { order: TCheckout[] }) => {
   const [open, setOpen] = useState({ id: "", status: false });
   const router = useRouter();
 
-  useEffect(() => {
-    const mkidtransUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
-    const script = document.createElement("script");
-    script.src = mkidtransUrl;
-    script.setAttribute(
-      "data-client-key",
-      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!
-    );
-    script.async = true;
-
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  const variants = {
-    open: {
-      opacity: 1,
-      scale: 1,
-      transformOrigin: "top right",
-      transition: {
-        staggerChildren: 0.07,
-        delayChildren: 0.4,
-        duration: 0.5,
-        type: "spring",
-      },
+  const { mutate: handle, isPending } = useMutation({
+    mutationFn: async (data: { id: string; type: string }) => {
+      if (data.type === "CANCEL") {
+        const [checkout, order] = await Promise.all([
+          checkoutService.updateStatus(data.id, {
+            status: "CANCELED",
+          }),
+          ordersService.updateStatus(data.id, { status: "CANCELED" }),
+        ]);
+        return { resChcekout: checkout, resOrder: order, type: "CANCEL" };
+      } else {
+        const [checkout, order] = await Promise.all([
+          checkoutService.delete(data.id),
+          ordersService.delete(data.id),
+        ]);
+        return { resChcekout: checkout, resOrder: order, type: "REMOVE" };
+      }
     },
-    closed: {
-      opacity: 0,
-      scale: 0,
-      transformOrigin: "top right",
-      transition: {
-        staggerChildren: 0.05,
-        staggerDirection: -1,
-        delayChildren: 0.03,
-        duration: 0.5,
-        type: "spring",
-        delay: 0.4,
-      },
+    onSuccess: async (res) => {
+      if (res.resChcekout.status === 200 || res.resOrder.status === 200) {
+        toast.success(res.resChcekout.data.message);
+        router.replace(
+          res.type === "CANCEL"
+            ? "/profile/order?status=CANCELED"
+            : "/profile/order"
+        );
+      } else {
+        toast.error(res.resChcekout.data.message);
+        console.log("error");
+      }
     },
-  };
-
-  const listVariants = {
-    open: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        y: { stiffness: 1000, velocity: -100 },
-      },
-    },
-    closed: {
-      y: 20,
-      opacity: 0,
-      transition: {
-        y: { stiffness: 1000 },
-      },
-    },
-  };
+  });
 
   const handlePay = (token: string) => {
     // @ts-expect-error
@@ -77,7 +56,7 @@ const OrderList = ({ order }: { order: any[] }) => {
         router.replace("/profile/order");
         toast.success("Payment successfully");
       },
-      onPending: () => {
+      onPennpding: () => {
         router.replace("/profile/order");
         toast.success("Waiting for paymnet");
       },
@@ -90,38 +69,20 @@ const OrderList = ({ order }: { order: any[] }) => {
       },
     });
   };
+
   return order && order.length > 0 ? (
-    <section className="w-full flex flex-col items-center gap-4">
+    <section className="w-full flex flex-col items-center gap-4 relative">
+      {isPending && (
+        <section className="fixed top-0 left-0 w-full h-dvh flex items-center justify-center bg-black z-50 bg-opacity-60">
+          <Loader className="text-white" />
+        </section>
+      )}
       {order.map((o: TCheckout, i) => (
-        <motion.div
-          initial={{ opacity: 0, scale: 0, y: -30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: i * 0.2, ease: "backInOut" }}
+        <OrderCard
+          data={o}
           key={o.order_id}
-          className="w-full shadow-md shadow-slate-900 rounded-md p-3 pb-5"
+          date={new Date(o.checkoutAt.seconds * 1000)}
         >
-          <div className="mb">
-            {o.cart.map((c) => {
-              return (
-                <div key={c.id} className="p-4 flex md:flex-row flex-col gap-3">
-                  <Image
-                    src={c.photo}
-                    alt={c.name}
-                    width={150}
-                    height={150}
-                    priority
-                  />
-                  <article>
-                    <h5>
-                      {c.name} | {c.variant}
-                    </h5>
-                    <p>{c.category}</p>
-                    <p>{c.qty}</p>
-                  </article>
-                </div>
-              );
-            })}
-          </div>
           <div className="flex items-center justify-between">
             {o.status === "PAID" ? (
               <p className="bg-green-500 text-white inline-block p-3 px-5 rounded-full">
@@ -174,16 +135,10 @@ const OrderList = ({ order }: { order: any[] }) => {
                   <motion.li
                     variants={listVariants}
                     className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => router.push(`/profile/order/${o.order_id}`)}
                   >
                     <i className="bx bx-show text-2xl" />
                     See
-                  </motion.li>{" "}
-                  <motion.li
-                    variants={listVariants}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <i className="bx bx-x text-2xl" />
-                    Cancel
                   </motion.li>
                 </motion.ul>
               ) : o.status === "PENDING" ? (
@@ -212,6 +167,7 @@ const OrderList = ({ order }: { order: any[] }) => {
                   <motion.li
                     variants={listVariants}
                     className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => handle({ id: o.order_id, type: "CANCEL" })}
                   >
                     <i className="bx bx-x text-2xl" />
                     Cancel
@@ -234,6 +190,7 @@ const OrderList = ({ order }: { order: any[] }) => {
                   <motion.li
                     variants={listVariants}
                     className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => router.push(`/profile/order/${o.order_id}`)}
                   >
                     <i className="bx bx-show text-2xl" />
                     See
@@ -241,15 +198,16 @@ const OrderList = ({ order }: { order: any[] }) => {
                   <motion.li
                     variants={listVariants}
                     className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => handle({ id: o.order_id, type: "REMOVE" })}
                   >
                     <i className="bx bx-x text-2xl" />
-                    Cancel
+                    Remove
                   </motion.li>
                 </motion.ul>
               )}
             </div>
           </div>
-        </motion.div>
+        </OrderCard>
       ))}
     </section>
   ) : (

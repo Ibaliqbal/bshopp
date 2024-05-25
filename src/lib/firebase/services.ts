@@ -14,6 +14,9 @@ import {
   WhereFilterOp,
   where,
   updateDoc,
+  DocumentData,
+  QueryConstraint,
+  WithFieldValue,
 } from "firebase/firestore";
 import app from "./init";
 import { v4 as uuidv4 } from "uuid";
@@ -72,7 +75,7 @@ export async function retrieveDataDetail(collectionName: string, id: string) {
 
 export async function retrieveDataByField(
   collectionName: string,
-  filter: any[]
+  filter: QueryConstraint[]
 ) {
   const q = query(collection(firestore, collectionName), ...filter);
   const snapshot = await getDocs(q);
@@ -86,7 +89,7 @@ export async function retrieveDataByField(
 
 export async function retrievePaginationData(
   collectionName: string,
-  filter: any,
+  filter: QueryConstraint[],
   limitData: number
 ) {
   const colRef = collection(firestore, collectionName);
@@ -105,7 +108,7 @@ export async function retrievePaginationData(
 
 export async function setData(
   collectionName: string,
-  data: any,
+  data: WithFieldValue<DocumentData>,
   callback: Function,
   id?: string
 ) {
@@ -125,12 +128,7 @@ export async function deleteData(
     .catch(() => callback(false));
 }
 
-export async function sortedData(
-  collectionName: string,
-  sortedField: string,
-  sortMethod: string
-) {
-  const sorting = sortMethod === "asc" ? "asc" : "desc";
+export async function sortedData(collectionName: string, sortedField: string) {
   const collectionRef = collection(firestore, collectionName);
   const q = query(collectionRef, orderBy(sortedField));
   const snapshot = await getDocs(q);
@@ -211,7 +209,7 @@ export function uploadFile(
 export async function updateData(
   collectionName: string,
   id: string,
-  data: any,
+  data: WithFieldValue<DocumentData>,
   callback: Function
 ) {
   await updateDoc(doc(firestore, collectionName, id), data)

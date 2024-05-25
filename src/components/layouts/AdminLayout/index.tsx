@@ -1,37 +1,17 @@
 import Sidebar from "../SidebarAdmin";
+import { SidebarAdminLink } from "@/constant";
+import SidebarResponsive from "../SidebarResponsive";
 
 type AdminLayoutProps = {
   children: React.ReactNode;
 };
 
-const list = [
-  {
-    name: "Dashboard",
-    icon: "bxs-dashboard",
-    linkTo: "/admin",
-  },
-  {
-    name: "User",
-    icon: "bxs-user",
-    linkTo: "/admin/users",
-  },
-  {
-    name: "Products",
-    icon: "bxs-shopping-bag",
-    linkTo: "/admin/products",
-  },
-  {
-    name: "Settings",
-    icon: "bxs-cog",
-    linkTo: "/admin/settings",
-  },
-];
-
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
-    <div className="w-full h-full flex gap-4 p-4 relative">
-      <Sidebar list={list} title="Admin Panel" />
+    <div className="w-full h-full flex gap-4 p-4 justify-center relative">
+      <Sidebar list={SidebarAdminLink} title="Admin Panel" />
       {children}
+      <SidebarResponsive list={SidebarAdminLink} />
     </div>
   );
 };

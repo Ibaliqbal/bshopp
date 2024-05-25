@@ -1,15 +1,5 @@
 import React, { forwardRef } from "react";
 
-// type InputProps = {
-//   className?: string;
-//   placeholder: string;
-//   type: string;
-//   name?: string;
-//   value?: string;
-//   handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-//   disabled?: boolean;
-// };
-
 type InputProp = React.ComponentPropsWithoutRef<"input">;
 
 const Input = forwardRef<HTMLInputElement, InputProp>(

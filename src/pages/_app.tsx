@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { SessionProvider } from "next-auth/react";
+import { getSession, SessionProvider } from "next-auth/react";
 import AppShell from "@/components/layouts/AppShell";
 import Head from "next/head";
 import { Toaster } from "sonner";
@@ -11,8 +11,6 @@ import { FavoriteProvider } from "@/context/favorite/favorite.context";
 import { CartProvider } from "@/context/cart/cart.context";
 import { UserProvider } from "@/context/user/user.context";
 import { OrderProvider } from "@/context/order/order.context";
-import { Provider } from "react-redux";
-import { store } from "@/lib/redux/store";
 
 const queryClient = new QueryClient();
 
@@ -29,21 +27,22 @@ export default function App({
         />
       </Head>
       <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <UserProvider>
-            <FavoriteProvider>
-              <CartProvider>
-                <OrderProvider>
-                  <AppShell>
-                    <Component {...pageProps} />
-                    <Toaster position="top-center" richColors duration={2000} />
-                  </AppShell>
-                </OrderProvider>
-              </CartProvider>
-            </FavoriteProvider>
-          </UserProvider>
-        </Provider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        <UserProvider>
+          <FavoriteProvider>
+            <CartProvider>
+              <OrderProvider>
+                <AppShell>
+                  <Component {...pageProps} />
+                  <Toaster position="top-center" richColors duration={2000} />
+                </AppShell>
+              </OrderProvider>
+            </CartProvider>
+          </FavoriteProvider>
+        </UserProvider>
+        <ReactQueryDevtools
+          initialIsOpen={false}
+          buttonPosition="bottom-left"
+        />
       </QueryClientProvider>
     </SessionProvider>
   );

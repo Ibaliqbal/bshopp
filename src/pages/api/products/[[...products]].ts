@@ -11,9 +11,10 @@ import {
   updateProduct,
 } from "@/services/products/method";
 import { Product } from "@/types/product";
-import axios from "axios";
+import { verify } from "@/utils/verifyToken";
 import { serverTimestamp, where } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
+import bcrypt from "bcrypt";
 
 type Data = {
   status: boolean;
@@ -226,24 +227,26 @@ export default async function handler(
     }
   } else if (req.method === "POST") {
     const data = req.body;
-    data.createdAt = serverTimestamp();
-    data.updatedAt = serverTimestamp();
-    await createProduct(
-      data,
-      (response: { status: boolean; message: string }) => {
-        if (response.status) {
-          res.status(201).json({
-            status: response.status,
-            message: response.message,
-          });
-        } else {
-          res.status(400).json({
-            status: response.status,
-            message: response.message,
-          });
+    verify(req, res, true, async () => {
+      data.createdAt = serverTimestamp();
+      data.updatedAt = serverTimestamp();
+      await createProduct(
+        data,
+        (response: { status: boolean; message: string }) => {
+          if (response.status) {
+            res.status(201).json({
+              status: response.status,
+              message: response.message,
+            });
+          } else {
+            res.status(400).json({
+              status: response.status,
+              message: response.message,
+            });
+          }
         }
-      }
-    );
+      );
+    });
   } else if (req.method === "DELETE") {
     const id = req.query.products;
     if (id) {
@@ -264,27 +267,35 @@ export default async function handler(
   } else if (req.method === "PUT") {
     const query = req.query.products;
     let data = req.body;
-    if (query) {
-      data.updatedAt = serverTimestamp();
-      await updateProduct(
-        query[0],
-        data,
-        (result: { status: boolean; message: string }) => {
-          if (result.status) {
-            res.status(200).json({
-              status: result.status,
-              message: result.message,
-            });
-          } else {
-            res.status(400).json({
-              status: result.status,
-              message: result.message,
-            });
+    verify(req, res, true, async () => {
+      if (query) {
+        data.updatedAt = serverTimestamp();
+        await updateProduct(
+          query[0],
+          data,
+          (result: { status: boolean; message: string }) => {
+            if (result.status) {
+              res.status(200).json({
+                status: result.status,
+                message: result.message,
+              });
+            } else {
+              res.status(400).json({
+                status: result.status,
+                message: result.message,
+              });
+            }
           }
-        }
-      );
-    }
+        );
+      }
+    });
   } else {
     res.status(403).json({ status: false, message: "Method not allowed" });
   }
 }
+
+export const config = {
+  api: {
+    externalResolver: true,
+  },
+};

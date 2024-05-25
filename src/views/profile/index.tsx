@@ -2,6 +2,7 @@ import ProfileLayout from "@/components/layouts/ProfileLayout";
 import Chart from "@/components/Porfile/Chart";
 import FormReset from "@/components/Porfile/FormReset";
 import FormUser from "@/components/Porfile/FormUser";
+import TopThreeProductChart from "@/components/Porfile/TopThreeProductChart";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Label from "@/components/ui/label";
@@ -13,6 +14,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { motion } from "framer-motion";
 
 export default function ProfileView() {
   const user: User = useUser();
@@ -23,8 +25,13 @@ export default function ProfileView() {
     <ProfileLayout>
       <div className="w-full pt-4 pb-24">
         <h1 className="text-2xl font-bold">Profile</h1>
-        <div className="md:grid flex flex-col md:grid-cols-3 gap-2 mt-6">
-          <div className="col-span-1 h-fit rounded-md p-4 border-2 border-slate-700 flex flex-col items-center gap-6">
+        <div className="md:grid flex flex-col md:grid-cols-3 gap-2 mt-4">
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1, transformOrigin: "left" }}
+            transition={{ duration: 0.3, ease: [0.24, 0, 0.54, 1] }}
+            className="col-span-1 h-fit rounded-md p-4 border-2 border-slate-700 flex flex-col items-center gap-6"
+          >
             <h3 className="text-xl font-semibold">AVATAR</h3>
             <Image
               src={
@@ -83,11 +90,18 @@ export default function ProfileView() {
             >
               Save
             </Button>
-          </div>
+          </motion.div>
           <FormUser user={user} />
         </div>
         <FormReset user={user} />
-        <Chart />
+        <div className="md:grid grid-cols-3 gap-8 mt-5">
+          <div className="md:col-span-2">
+            <Chart />
+          </div>
+          <div className="md:col-span-1">
+            <TopThreeProductChart />
+          </div>
+        </div>
       </div>
     </ProfileLayout>
   );

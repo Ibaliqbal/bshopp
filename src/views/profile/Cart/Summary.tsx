@@ -3,9 +3,8 @@ import Loader from "@/components/ui/loader";
 import { useUser } from "@/context/user/user.context";
 import { checkoutService } from "@/services/checkout";
 import { ordersService } from "@/services/orders";
-import { productsServices } from "@/services/products";
 import userService from "@/services/users";
-import { OtherSpec } from "@/types/product";
+import { CheckoutCart, TPay } from "@/types/checkout";
 import { Cart, User } from "@/types/user";
 import { converPrice } from "@/utils/convertPrice";
 import { useMutation } from "@tanstack/react-query";
@@ -18,7 +17,7 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
   const { data } = useSession();
   const router = useRouter();
   const user: User = useUser();
-  const [checkoutProducts, setCheckoutProducts] = useState<any>();
+  const [checkoutProducts, setCheckoutProducts] = useState<TPay>();
   const [token, setToken] = useState("");
   const subTotal = carts
     ?.filter((c) => c.checked)
@@ -34,13 +33,13 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
           qty: cart.quantity,
           price: cart.price,
           photo: cart.photo,
-          variant: cart.variant,
-          category: cart.category,
+          variant: cart.variant as string,
+          category: cart.category as string,
           id: cart.id,
         }));
       const newData = {
         id: user?.id || "",
-        cart: dataCheckout,
+        cart: dataCheckout as CheckoutCart[],
       };
       setCheckoutProducts(newData);
 
@@ -55,11 +54,11 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
     onSuccess: async (result) => {
       const newOrder = {
         ...checkoutProducts,
-        token: result.token,
-        order_id: result.order_id,
+        token: result.token as string,
+        order_id: result.order_id as string,
         status: "PENDING",
+        username: user?.fullname,
       };
-      setCheckoutProducts(newOrder);
       const res = await ordersService.create(newOrder);
       if (res.data.status) {
         setToken(result.token);
@@ -75,7 +74,7 @@ const Summary = ({ carts }: { carts: Cart[] }) => {
 
       window.snap?.pay(token, {
         onSuccess: async () => {
-          router.push("/profile/order");
+          router.push("/success-order");
           toast.success("Payment successfully");
         },
         onPending: () => {

@@ -8,6 +8,7 @@ import Link from "next/link";
 import Card from "@/components/Fragments/CardProduct";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 import { randomProduct } from "@/utils/randomProduct";
+import Countdown from "@/components/CountDown";
 
 const testimonials = [
   {
@@ -125,6 +126,9 @@ const HomeView = () => {
             speed="slow"
           />
         </div>
+      </div>
+      <div className="pb-24">
+        <Countdown />
       </div>
     </section>
   );

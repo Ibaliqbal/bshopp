@@ -1,21 +1,21 @@
 import Sidebar from "@/components/layouts/SidebarHome";
+import ListFilter from "@/components/layouts/SidebarHome/ListFilter";
 import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
-import { Product, mensOption, womensOption } from "@/types/product";
+import {
+  Product,
+  mensOption,
+  sortingOption,
+  womensOption,
+} from "@/types/product";
+import { sortProducts } from "@/utils/sortProducts";
 import ProductsView from "@/views/products";
 import Header from "@/views/products/header";
 import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-// interface SearchProductPageProps {
-//   products: Product[];
-//   count: number;
-//   limit: number;
-//   start: number;
-//   total: number;
-// }
 
 export const filterOption = [
   {
@@ -39,6 +39,9 @@ const SearchProductPage = () => {
   });
   const [filterDatas, setFilterDatas] = useState<Product[]>([]);
   const [selectOptions, setSelectOptions] = React.useState<number[]>([]);
+  const [sortingOptions, setSortingOptions] = React.useState<number>(0);
+
+  // ini fungsi untuk pagination
 
   // async function handleLoadMore() {
   //   if (count === 0) return toast.success("SUdah berhasil sampai selesai");
@@ -58,16 +61,37 @@ const SearchProductPage = () => {
   }, [data]);
 
   const handleFilter = (value: number[]) => {
-    if (JSON.stringify(value) === JSON.stringify(selectOptions)) {
-      setSelectOptions([]);
-      setFilterDatas(data?.data.payload);
+    if (sortingOptions) {
+      if (JSON.stringify(value) === JSON.stringify(selectOptions)) {
+        setSelectOptions([]);
+        const datas = sortProducts(data?.data.payload, sortingOptions);
+        setFilterDatas(datas as Product[]);
+      } else {
+        const datas = sortProducts(data?.data.payload, sortingOptions);
+        const filterDatas = datas?.filter((product: Product) =>
+          value.includes(product.categories?.value as number)
+        );
+        setFilterDatas(filterDatas as Product[]);
+        setSelectOptions(value);
+      }
     } else {
-      setSelectOptions(value);
-      const findProduct = data?.data.payload?.filter((product: Product) =>
-        value.includes(product.categories?.value as number)
-      );
-      setFilterDatas(findProduct);
+      if (JSON.stringify(value) === JSON.stringify(selectOptions)) {
+        setSelectOptions([]);
+        setFilterDatas(data?.data.payload);
+      } else {
+        const filterDatas = data?.data.payload.filter((product: Product) =>
+          value.includes(product.categories?.value as number)
+        );
+        setFilterDatas(filterDatas);
+        setSelectOptions(value);
+      }
     }
+  };
+
+  const handleSorting = (value: number) => {
+    setSortingOptions(value);
+    const data = sortProducts(filterDatas, value);
+    setFilterDatas(data as Array<Product>);
   };
   if (isLoading)
     return (
@@ -81,7 +105,36 @@ const SearchProductPage = () => {
       <Head>
         <title>BShopp | Search Product</title>
       </Head>
-      <Header />
+      <Header handleSorting={handleSorting} sortingOption={sortingOptions}>
+        <div className="bg-black p-3 mt-3 rounded-md md:hidden flex flex-col gap-6">
+          <ListFilter
+            list={sortingOption}
+            handleFilter={handleSorting}
+            title="Sorting"
+            selectOptions={sortingOptions}
+          />
+          <section className="text-white md:hidden">
+            <h1 className="text-gray-300 font-bold">FILTER BY</h1>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {filterOption.map((option, i) => (
+                <Button
+                  sizes="sm"
+                  className={`transition-all duration-200 ease-out uppercase ${
+                    JSON.stringify(option.value) ===
+                    JSON.stringify(selectOptions)
+                      ? "bg-white text-black"
+                      : "border-2 border-white"
+                  }`}
+                  key={i}
+                  onClick={() => handleFilter(option.value)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </section>
+        </div>
+      </Header>
       <section className="w-full h-full flex gap-4 p-4 pb-24">
         <Sidebar total={filterDatas?.length}>
           <section className="text-white">
@@ -112,6 +165,8 @@ const SearchProductPage = () => {
 };
 
 export default SearchProductPage;
+
+// ini untuk melakukan fetch dari sisi server
 
 // export async function getServerSideProps({ query }: { query: any }) {
 //   console.log(query);

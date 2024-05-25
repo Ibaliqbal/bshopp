@@ -1,11 +1,20 @@
 import { Timestamp } from "firebase/firestore";
-import { ChcekoutCart } from "./checkout";
+import { CheckoutCart } from "./checkout";
 
 export type Orders = {
   id?: string;
-  cart: Array<ChcekoutCart>;
+  cart: Array<CheckoutCart>;
   order_id: string;
   status: "PAID" | "PENDING" | "CANCELED";
   orderAt: Timestamp;
   token: string;
+};
+
+export type TCreate = {
+  token: string;
+  order_id: string;
+  status: string;
+  username: string;
+  cart?: CheckoutCart[];
+  id?: string | undefined;
 };

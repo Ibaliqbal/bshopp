@@ -1,38 +1,18 @@
 import Sidebar from "../SidebarAdmin";
+import { SidebarProfileLink } from "@/constant";
+import SidebarResponsive from "../SidebarResponsive";
 
 type ProfileLayoutProps = {
   children: React.ReactNode;
 };
 
-const list = [
-  {
-    name: "Profile",
-    icon: "bxs-user",
-    linkTo: "/profile",
-  },
-  {
-    name: "Cart",
-    icon: "bxs-cart-alt",
-    linkTo: "/profile/cart",
-  },
-  {
-    name: "Order",
-    icon: "bxs-truck",
-    linkTo: "/profile/order",
-  },
-  {
-    name: "Favorite",
-    icon: "bxs-heart",
-    linkTo: "/profile/favorite",
-  },
-];
-
 const ProfileLayout = ({ children }: ProfileLayoutProps) => {
   return (
-    <div className="w-full h-full flex gap-4 p-4 relative">
-      <Sidebar list={list} title="Profile Panel" />
+    <main className="w-full h-full flex gap-4 p-4 relative">
+      <Sidebar list={SidebarProfileLink} title="Profile Panel" />
       {children}
-    </div>
+      <SidebarResponsive list={SidebarProfileLink} />
+    </main>
   );
 };
 

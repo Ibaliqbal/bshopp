@@ -4,6 +4,7 @@ import NavUser from "./NavUser";
 import NavResponsive from "./NavResponsive";
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 const navigation = [
   {
@@ -16,10 +17,22 @@ const navigation = [
   },
 ];
 
+const navigationAdmin = [
+  {
+    href: "/",
+    name: "Home",
+  },
+  {
+    href: "/admin",
+    name: "Dashboard",
+  },
+];
+
 const Navbar = () => {
   const { pathname } = useRouter();
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState<boolean>(false);
+  const { data } = useSession();
 
   useMotionValueEvent(scrollY, "change", (latest: number) => {
     const previous = scrollY.getPrevious() ?? 0;
@@ -60,7 +73,10 @@ const Navbar = () => {
         </nav>
         {/* ini Untuk ukuran mobile */}
         <div className="md:hidden w-full flex justify-end items-center ml-3 relative">
-          <NavResponsive lists={navigation} />
+          <NavResponsive
+            lists={data?.user?.role !== "admin" ? navigation : navigationAdmin}
+            data={data}
+          />
         </div>
         {/* ini Untuk ukuran desktop dan tablet */}
         <div className="hidden md:block">

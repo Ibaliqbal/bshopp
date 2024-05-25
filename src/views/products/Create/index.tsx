@@ -58,8 +58,8 @@ const ProductCreateView = () => {
         className="bx bx-arrow-back mt-5 text-4xl cursor-pointer"
         onClick={() => back()}
       />
-      <section className="w-full grid lg:grid-cols-3 place-items-center lg:place-items-stretch gap-5 mt-5">
-        <div className="lg:col-span-1 w-full border-4 border-gray-700 rounded-md h-fit relative">
+      <section className="w-full grid lg:grid-cols-3 place-items-center lg:place-items-stretch gap-5 mt-5 p-2">
+        <div className="lg:col-span-1 w-full border-4 border-gray-700 rounded-md h-fit relative ">
           {photoProduct.length > 0 ? (
             <Image
               src={photoProduct[photoProduct.length - 1]}
@@ -103,6 +103,7 @@ const ProductCreateView = () => {
           progress={progress}
           setProgress={setProgress}
           setPhotoProduct={setPhotoProduct}
+          isEdit={false}
         />
       </section>
     </main>

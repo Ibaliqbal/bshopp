@@ -59,9 +59,9 @@ export async function singUp(
 
 export async function loginWithGoogle(
   data: {
-    fullname: any;
-    email: any;
-    photo_profile: any;
+    fullname: string;
+    email: string;
+    photo_profile: string;
     type: string;
     createdAt: FieldValue;
     updatedAt: FieldValue;
@@ -76,21 +76,6 @@ export async function loginWithGoogle(
   if (user.length > 0) {
     callback(user[0]);
   } else {
-    const datauser = {
-      fullname: data.fullname,
-      email: data.email,
-      photo_profile: data.photo_profile,
-      type: data.type,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      role: "member",
-      cart: [],
-      favorite: [],
-      province: null,
-      city: null,
-      district: null,
-    };
-
     await setData("users", data, (result: boolean) => {
       if (result) callback(data);
     });

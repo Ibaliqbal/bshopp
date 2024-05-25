@@ -6,6 +6,7 @@ import userService from "@/services/users";
 import { User } from "@/types/user";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/services";
+import { productsServices } from "@/services/products";
 
 type FavoriteContextType = {
   favorite: Product[];
@@ -25,6 +26,7 @@ export const FavoriteProvider = ({
   const { data, status } = useSession();
   const [favoriteProduct, setFavorite] = React.useState<Product[]>([]);
   const [userId, setUserId] = React.useState("");
+  const [role, setRole] = React.useState("member");
 
   React.useEffect(() => {
     const unsub = onSnapshot(
@@ -42,6 +44,7 @@ export const FavoriteProvider = ({
           if (data) {
             setFavorite(data.favorite);
             setUserId(data.id);
+            setRole(data.role);
           }
         }
       }
@@ -49,23 +52,27 @@ export const FavoriteProvider = ({
     return () => unsub();
   }, [data]);
 
-  const handleFav = async (data: Product) => {
+  const handleFav = async (dataProduct: Product) => {
     if (!userId) return;
     if (status !== "authenticated") {
       toast.error("Please login first");
     } else {
-      const findProduct = favoriteProduct?.filter(
-        (product) => product.id === data.id
-      );
-      const update = {
-        favorite:
-          findProduct?.length > 0
-            ? favoriteProduct?.filter(
-                (product) => product.id !== findProduct[0]?.id
-              )
-            : [...favoriteProduct, data],
-      };
-      await userService.update(userId, update);
+      if (role !== "admin") {
+        const findProduct = favoriteProduct?.filter(
+          (product) => product.id === dataProduct.id
+        );
+        const update = {
+          favorite:
+            findProduct?.length > 0
+              ? favoriteProduct?.filter(
+                  (product) => product.id !== findProduct[0]?.id
+                )
+              : [...favoriteProduct, dataProduct],
+        };
+        await userService.update(userId, update);
+      } else {
+        toast.error("Only user or member can interact for this feature !");
+      }
     }
   };
 

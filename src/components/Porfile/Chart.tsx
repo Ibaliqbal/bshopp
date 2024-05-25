@@ -17,6 +17,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import Select, { SingleValue } from "react-select";
 import { TCheckout } from "@/types/checkout";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 ChartJs.register(
   Tooltip,
@@ -41,7 +42,7 @@ function sumChcekout(data: Array<TCheckout>, thisYear: number) {
       curr: TCheckout
     ) => {
       const found = acc.find(
-        (c: any) =>
+        (c: { month: string; total: number }) =>
           c.month === MONTH[getMonth(new Date(curr.checkoutAt.seconds * 1000))]
       );
       if (found) {
@@ -69,61 +70,70 @@ function sumChcekout(data: Array<TCheckout>, thisYear: number) {
   return mappingPerYear;
 }
 
-const Chart = () => {
-  const user: User = useUser();
-  const [loading, setLoading] = React.useState(false);
-  const [data, setData] = React.useState<any[]>([]);
-  const [dataYear, setDataYear] = React.useState<any[]>([]);
-  const thisYear = new Date().getFullYear();
-  const getOrders = async () => {
-    if (!user?.id) return;
-    setLoading(true);
-    try {
-      const res = await checkoutService.get(user?.id || "");
-      const data = res.data.payload;
-      const filteredData = sumChcekout(data, thisYear);
-      setData(data);
-      setDataYear(filteredData);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+async function fetchCheckout(id: string, year: number) {
+  if (!id) return [];
+  const res = await checkoutService.get(id);
+  const data = res.data.payload;
+  const filteredData = sumChcekout(data, year);
 
-  React.useEffect(() => {
-    getOrders();
-  }, [user]);
-  return loading ? (
-    <section className="flex items-center justify-center mt-6">
+  return filteredData;
+}
+
+const Chart = () => {
+  const thisYear = new Date().getFullYear();
+  const user: User = useUser();
+  const queryClient = useQueryClient();
+  const [year, setYear] = React.useState<{
+    value: number;
+    label: string;
+  }>({
+    value: new Date().getFullYear(),
+    label: new Date().getFullYear().toString(),
+  });
+  const { data: checkout, isLoading } = useQuery({
+    queryKey: ["chart-checkout"],
+    queryFn: () => fetchCheckout(user?.id, year.value),
+    enabled: !!user,
+  });
+  const { mutate: changeYear } = useMutation({
+    mutationFn: (year: number) => fetchCheckout(user?.id, year),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chart-checkout"] });
+    },
+  });
+
+  return isLoading ? (
+    <section className="w-full flex items-center justify-center mt-6 h-full">
       <Loader className="text-black" />
     </section>
   ) : (
-    <section className="mt-5 md:h-2/6 h-1/4">
+    <section className="mt-5">
       <div className="mb-10 flex items-center justify-between">
-        <h1>Chart</h1>
+        <h1>Your spending</h1>
         <Select
+          id="year"
+          instanceId={"year"}
           options={[
             {
-              label: thisYear - 2,
+              label: (thisYear - 2).toString(),
               value: thisYear - 2,
             },
             {
-              label: thisYear - 1,
+              label: (thisYear - 1).toString(),
               value: thisYear - 1,
             },
             {
-              label: thisYear,
+              label: thisYear.toString(),
               value: thisYear,
             },
           ]}
           defaultValue={{
-            label: thisYear,
+            label: thisYear.toString(),
             value: thisYear,
           }}
-          onChange={(option: SingleValue<{ label: number; value: number }>) => {
-            const sum = sumChcekout(data, option?.value as number);
-            setDataYear(sum);
+          onChange={(option: SingleValue<{ label: string; value: number }>) => {
+            setYear(option);
+            changeYear(option?.value as number);
           }}
         />
       </div>
@@ -133,7 +143,7 @@ const Chart = () => {
           datasets: [
             {
               label: "Checkout",
-              data: dataYear,
+              data: checkout,
               backgroundColor: "rgba(0, 204,  204, 0.6)",
               borderRadius: 4,
             },

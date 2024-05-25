@@ -1,6 +1,5 @@
 import instance from "@/lib/axios/instance";
 import { TCreatedProduct } from "@/types/product";
-import { OrderByDirection } from "firebase/firestore";
 
 export const productsServices = {
   get: () => instance.get("/api/products"),
@@ -24,7 +23,8 @@ export const productsServices = {
   ) =>
     instance.get(`/api/products?_start=${start}&_limit=${limit}&_sort=${sort}`),
   search: (params: string) => instance.get(`/api/products/search?q=${params}`),
-  recomended: (filter: string, sort: OrderByDirection) =>
+  recomended: (filter: string) =>
     instance.get(`/api/products?_filter=${filter}`),
-  update: (id: string, data: any) => instance.put(`/api/products/${id}`, data),
+  update: <TUpdate>(id: string, data: TUpdate) =>
+    instance.put(`/api/products/${id}`, data),
 };

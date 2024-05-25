@@ -1,6 +1,25 @@
+import { UUID } from "crypto";
 import { FieldValue, Timestamp } from "firebase/firestore";
 import { Options } from "react-select";
 import { z } from "zod";
+
+export const sortingOption = [
+  {
+    value: 32,
+    label: "Price : High - Low",
+    symbol: "PHL",
+  },
+  {
+    value: 15,
+    label: "Price : Low - High",
+    symbol: "PLH",
+  },
+];
+
+export enum SORTING_OPT {
+  PHL = "PHL",
+  PLH = "PLH",
+}
 
 export interface OtherSpec {
   size: string | undefined;
@@ -8,15 +27,15 @@ export interface OtherSpec {
   price: number;
   soldout: number;
 }
-type Comments = {
-  user: {
-    id: string;
-    username: string;
-    profile: string;
-  };
+
+export type Comments = {
+  id: string;
+  name: string;
+  photo_profile: string;
   rating: number;
   text: string;
-  upoloadAt: Timestamp | string;
+  comment_at: Timestamp;
+  reply_to?: string;
 };
 
 export type Product = {
@@ -127,7 +146,6 @@ export const sortFilter = [
   {
     label: "Price : Low - High",
     value: 96,
-    func: (datas: any) => datas.sort((a: any, b: any) => a.price - b.price),
   },
   {
     label: "Price : High - Low",

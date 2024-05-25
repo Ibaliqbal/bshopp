@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { z } from "zod";
-import { Product, optionSchema } from "./product";
+import { Product } from "./product";
 
 export type Cart = {
   id: string;
@@ -11,6 +11,16 @@ export type Cart = {
   checked: boolean;
   name: string;
   category: string | undefined;
+};
+
+export type Admin = {
+  id: string;
+  fullname: string;
+  email: string;
+  password?: string;
+  createdAt: Timestamp;
+  photo_profile: string;
+  role: string;
 };
 
 export type User = {

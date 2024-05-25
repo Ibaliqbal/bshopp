@@ -1,26 +1,28 @@
+import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
-import { Product } from "@/types/product";
 import AdminProductsView from "@/views/admin/Products";
+import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const AdminProductPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const getProducts = async () => {
-    const res = await productsServices.get();
-    const data = res.data.payload;
-    setProducts(data);
-  };
+  const { data, isLoading } = useQuery({
+    queryKey: ["products-owner"],
+    queryFn: async () => productsServices.get(),
+  });
 
-  useEffect(() => {
-    getProducts();
-  }, []);
   return (
     <section className="w-full min-h-dvh">
       <Head>
         <title>BShopp | Admin Products</title>
       </Head>
-      <AdminProductsView products={products} fetchProducts={getProducts} />
+      {isLoading ? (
+        <section className="flex items-center justify-center w-full h-dvh">
+          <Loader className="text-black" />
+        </section>
+      ) : (
+        <AdminProductsView products={data?.data.payload} />
+      )}
     </section>
   );
 };

@@ -13,8 +13,8 @@ const poppins = Poppins({
   subsets: ["latin"],
 });
 
-const disabledNavbar = ["auth", "_error", "admin"];
-const disabledFooter = ["auth", "_error", "admin", "profile"];
+const disabledNavbar = ["auth", "_error", "admin", "success-order"];
+const disabledFooter = ["auth", "_error", "admin", "profile", "success-order"];
 
 const AppShell = ({ children }: AppShellProps) => {
   const { pathname } = useRouter();
@@ -26,9 +26,7 @@ const AppShell = ({ children }: AppShellProps) => {
       >
         {children}
       </section>
-      {!disabledFooter.includes(pathname.split("/")[1]) &&
-        pathname !== "/products/create_product" &&
-        pathname !== "/products/edit_product" && <Footer />}
+      {!disabledFooter.includes(pathname.split("/")[1]) && <Footer />}
     </main>
   );
 };

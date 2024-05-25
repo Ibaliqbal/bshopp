@@ -1,5 +1,5 @@
 import { firestore } from "@/lib/firebase/services";
-import { User } from "@/types/user";
+import { Admin, User } from "@/types/user";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import * as React from "react";
@@ -15,7 +15,7 @@ export const UserProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const [user, setUser] = React.useState<User | any>();
+  const [user, setUser] = React.useState<User | Admin | any>();
   const { data } = useSession();
 
   React.useEffect(() => {

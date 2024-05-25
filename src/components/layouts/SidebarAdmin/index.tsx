@@ -13,7 +13,7 @@ const Sidebar = ({
   }[];
   title: "Admin Panel" | "Profile Panel";
 }) => {
-  const { data }: any = useSession();
+  const { data } = useSession();
   const { pathname, push } = useRouter();
 
   return (

@@ -28,7 +28,7 @@ export default function FavoriteView() {
       setProducts(fav);
     } else {
       const filterDatas = fav?.filter(
-        (product: any) => product.categories.value === val.value
+        (product: Product) => product.categories?.value === val.value
       );
       setProducts(filterDatas);
       setSelectOption(val);

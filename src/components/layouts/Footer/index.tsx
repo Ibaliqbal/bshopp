@@ -19,7 +19,7 @@ export default function Footer() {
       <div className="max-w-layout mx-auto md:p-4 p-8 grid md:grid-cols-2 place-items-center gap-6">
         <section className="w-full">
           <div className="flex items-center justify-between">
-            <h1 className={`${montserrat.className} text-3xl`}>BShopp</h1>
+            <h1 className={`${montserrat.style} text-3xl`}>BShopp</h1>
             <ul className="flex items-center gap-3">
               <li>
                 <a
@@ -46,7 +46,7 @@ export default function Footer() {
             </ul>
           </div>
           <p
-            className={`${ubuntu.className} text-lg mt-5 leading-relaxed indent-8 whitespace-normal text-justify`}
+            className={`${ubuntu.style} text-lg mt-5 leading-relaxed indent-8 whitespace-normal text-justify`}
           >
             BShopp merupakan destinasi utama bagi siapa saja yang mencari
             aksesori berkualitas tinggi, menawarkan koleksi luas yang mencakup

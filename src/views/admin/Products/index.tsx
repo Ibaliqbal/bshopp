@@ -3,6 +3,7 @@ import Table from "@/components/ui/table";
 import { AlertDelete } from "@/lib/sweetalert/alert";
 import { productsServices } from "@/services/products";
 import { Product } from "@/types/product";
+import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Timestamp } from "firebase/firestore";
 import Image from "next/image";
@@ -12,13 +13,10 @@ import { toast } from "sonner";
 
 type AdminProductsViewProps = {
   products: Product[];
-  fetchProducts: () => Promise<void>;
 };
 
-const AdminProductsView = ({
-  fetchProducts,
-  products,
-}: AdminProductsViewProps) => {
+const AdminProductsView = ({ products }: AdminProductsViewProps) => {
+  const queryClient = useQueryClient();
   const column: ColumnDef<Product>[] = [
     {
       id: "S.No",
@@ -33,9 +31,9 @@ const AdminProductsView = ({
           <Image
             src={row.original.photo_product[0]}
             alt="Product"
-            className="w-[150px] h-[150px] object-cover"
-            width={150}
-            height={150}
+            className="md:w-[150px] md:h-[150px] h-[150px] w-[150px] object-cover"
+            width={200}
+            height={200}
           />
         );
       },
@@ -49,8 +47,6 @@ const AdminProductsView = ({
       header: "Category",
       cell: ({ row }) => {
         const products = row.original;
-        const convertDate = products.createdAt.seconds * 1000;
-        const createdAtDate = new Date(convertDate);
         return <span>{products.categories?.label}</span>;
       },
     },
@@ -59,12 +55,6 @@ const AdminProductsView = ({
       header: "Created",
       cell: ({ row }) => {
         const createdAtTimestamp: Timestamp = row.getValue("createdAt");
-        // const dateCreated = createdAtTimestamp
-        //   ? new Date(createdAtTimestamp.seconds * 1000)
-        //   : null;
-        // const formattedDate = dateCreated
-        //   ? dateCreated.toLocaleDateString()
-        //   : "Invalid Date";
         return (
           <span>
             {new Date(createdAtTimestamp.seconds * 1000).toDateString()}
@@ -96,10 +86,14 @@ const AdminProductsView = ({
                     );
                     if (response.status === 200) {
                       toast.success(response.data.message);
-                      fetchProducts();
+                      queryClient.invalidateQueries({
+                        queryKey: ["products-owner"],
+                      });
                     } else {
                       toast.error(response.data.message);
-                      fetchProducts();
+                      queryClient.invalidateQueries({
+                        queryKey: ["products-owner"],
+                      });
                     }
                   } else {
                     toast.error("Canceled");

@@ -7,7 +7,7 @@ import {
   setData,
   updateData,
 } from "@/lib/firebase/services";
-import { TCreatedProduct } from "@/types/product";
+import { Product, TCreatedProduct } from "@/types/product";
 import { orderBy, startAfter, where } from "firebase/firestore";
 
 export async function getProducts() {
@@ -23,7 +23,7 @@ export async function detailProduct(id: string, callback: Function) {
   await detailData(
     "products",
     id,
-    (response: { status: boolean; data: any }) => {
+    (response: { status: boolean; data: Product }) => {
       if (response.status)
         callback({ status: response.status, data: response.data });
       else callback({ status: response.status, data: response.data });

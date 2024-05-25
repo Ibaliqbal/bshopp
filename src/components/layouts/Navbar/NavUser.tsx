@@ -8,7 +8,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 export default function NavUser() {
-  const { data }: any = useSession();
+  const { data } = useSession();
   const user: User = useUser();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const fav = useFavorite();

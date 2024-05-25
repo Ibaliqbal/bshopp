@@ -28,25 +28,36 @@ const EditView = ({ id }: Props) => {
     formState: { isSubmitting },
   } = useForm<TSchema>({
     resolver: zodResolver(schema),
+    async defaultValues() {
+      const res = await productsServices.detail(id);
+      const data = res.data.payload;
+      setStock(data.other_specs);
+      setPhotoProduct(data.photo_product);
+      return {
+        name_product: data.name_product,
+        description: data.description,
+        categories: data.categories,
+      };
+    },
   });
 
-  async function fetchPorduct() {
-    const res = await productsServices.detail(id);
-    const data = res.data.payload;
-    setPhotoProduct(data.photo_product);
-    setStock(data.other_specs);
-    setValue("name_product", data.name_product);
-    setValue("description", data.description);
-    setValue("categories", data.categories);
-  }
+  // async function fetchPorduct() {
+  //   const res = await productsServices.detail(id);
+  //   const data = res.data.payload;
+  //   setPhotoProduct(data.photo_product);
+  //   setStock(data.other_specs);
+  //   setValue("name_product", data.name_product);
+  //   setValue("description", data.description);
+  //   setValue("categories", data.categories);
+  // }
 
-  React.useEffect(() => {
-    if (id) {
-      fetchPorduct();
-    }
-  }, [id]);
+  // React.useEffect(() => {
+  //   if (id) {
+  //     fetchPorduct();
+  //   }
+  // }, [id]);
 
-  const handleCreateProduct = async (data: TSchema) => {
+  const handleEdit = async (data: TSchema) => {
     if (photoProduct.length <= 0)
       return toast.error("Product image cannot be empty");
     if (stock.length <= 0)
@@ -104,7 +115,7 @@ const EditView = ({ id }: Props) => {
           control={control}
           register={register}
           handleSubmit={handleSubmit}
-          onSubmit={handleCreateProduct}
+          onSubmit={handleEdit}
           isSubmitting={isSubmitting}
           sizeRef={sizeRef}
           stockRef={stockRef}
@@ -114,6 +125,7 @@ const EditView = ({ id }: Props) => {
           progress={progress}
           setProgress={setProgress}
           setPhotoProduct={setPhotoProduct}
+          isEdit
         />
       </section>
     </main>

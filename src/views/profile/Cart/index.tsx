@@ -19,8 +19,8 @@ export default function CartView() {
   return (
     <ProfileLayout>
       {carts && carts.length > 0 ? (
-        <section className="pt-10 pb-24 grid md:grid-cols-3 gap-4">
-          <main className="md:col-span-2 w-full">
+        <section className="pt-10 pb-24 md:grid flex flex-col md:grid-cols-3 gap-4 w-full">
+          <main className="md:col-span-2 w-full md:mb-0 mb-10">
             <h1 className="font-semibold text-2xl">Cart Products</h1>
             <Label
               htmlFor="all"
@@ -35,7 +35,7 @@ export default function CartView() {
               />
               All Products
             </Label>
-            <div className="mt-10 flex flex-col gap-8">
+            <div className="mt-10 flex flex-col gap-8 w-full">
               {carts?.map((cart, i) => {
                 return (
                   <motion.article
@@ -43,9 +43,9 @@ export default function CartView() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, delay: 0.2 * i }}
                     key={i}
-                    className="grid grid-cols-4 gap-4 border-b border-b-slate-700 pb-4"
+                    className="md:grid flex flex-col items-center md:grid-cols-4 gap-4 w-full border-b border-b-slate-700 pb-4"
                   >
-                    <div className="flex items-center gap-3 col-span-1">
+                    <div className="flex items-center gap-3 md:col-span-1 w-full">
                       <Input
                         type="checkbox"
                         className="w-5 h-5"
@@ -59,19 +59,18 @@ export default function CartView() {
                       />
                       <Link
                         href={`/products/${cart.id}`}
-                        className="w-[200px] h-[200px]"
+                        className="md:w-[200px] md:h-[200px] w-[300px] h-[250px] relative"
                       >
                         <Image
                           src={cart.photo}
                           alt={cart.name}
-                          width={200}
-                          height={200}
+                          fill
                           priority
                           className="w-full h-full object-cover"
                         />
                       </Link>
                     </div>
-                    <div className="col-span-2 flex flex-col gap-3">
+                    <div className="md:col-span-2 flex flex-col gap-3 w-full">
                       <h4 className="text-xl">{cart.name}</h4>
                       <p className="text-gray-600 font-bold">{cart.category}</p>
                       <div className="flex gap-6 items-center mt-4">
@@ -111,7 +110,7 @@ export default function CartView() {
                         </div>
                       </div>
                       <i
-                        className="bx bx-trash cursor-pointer text-xl"
+                        className="hidden md:block bx bx-trash cursor-pointer text-xl"
                         onClick={() =>
                           AlertDelete((result: boolean) =>
                             result
@@ -124,8 +123,21 @@ export default function CartView() {
                         }
                       />
                     </div>
-                    <div className="col-span-1">
+                    <div className="md:col-span-1 flex justify-between w-full">
                       <p>{converPrice(cart.price * cart.quantity)}</p>
+                      <i
+                        className="block md:hidden bx bx-trash cursor-pointer text-xl"
+                        onClick={() =>
+                          AlertDelete((result: boolean) =>
+                            result
+                              ? method?.handleDelete(
+                                  cart.id,
+                                  cart.variant as string
+                                )
+                              : toast.error("Error, please try again")
+                          )
+                        }
+                      />
                     </div>
                   </motion.article>
                 );

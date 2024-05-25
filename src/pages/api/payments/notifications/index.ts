@@ -145,7 +145,6 @@ export default async function handler(
     ) {
       // TODO set transaction status on your database to 'failure'
       // and response with 200 OK
-      // const
       await Promise.all([
         updateCheckout(
           orderId,
@@ -161,7 +160,6 @@ export default async function handler(
           },
           () => {}
         ),
-        // updateProduct()
       ]);
 
       return res.status(200).json({ status: true, message: "OK" });

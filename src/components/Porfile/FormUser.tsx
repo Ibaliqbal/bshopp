@@ -9,6 +9,7 @@ import axios from "axios";
 import { schema, TOption, TSchema, User } from "@/types/user";
 import userService from "@/services/users";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 const FormUser = ({ user }: { user: User }) => {
   const [provinces, setProvinces] = useState<Options<TOption>>(
     [] as Options<TOption>
@@ -23,7 +24,7 @@ const FormUser = ({ user }: { user: User }) => {
     control,
     register,
     handleSubmit,
-    formState: { isSubmitting, isLoading },
+    formState: { isSubmitting },
     setValue,
     reset,
   } = useForm<TSchema>({
@@ -121,7 +122,10 @@ const FormUser = ({ user }: { user: User }) => {
     }
   };
   return (
-    <form
+    <motion.form
+      initial={{ scaleX: 0 }}
+      animate={{ scaleX: 1, transformOrigin: "right" }}
+      transition={{ duration: 0.4, delay: 1, ease: [0.24, 0, 0.54, 1] }}
       onSubmit={handleSubmit(onSubmit)}
       className="col-span-2 p-4 rounded-md border-2 border-slate-700 flex flex-col gap-5"
     >
@@ -265,7 +269,7 @@ const FormUser = ({ user }: { user: User }) => {
           "Submit"
         )}
       </Button>
-    </form>
+    </motion.form>
   );
 };
 

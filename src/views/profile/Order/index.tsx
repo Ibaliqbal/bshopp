@@ -1,13 +1,14 @@
 import ProfileLayout from "@/components/layouts/ProfileLayout";
 import OrderList from "@/components/Porfile/OrderList";
 import Loader from "@/components/ui/loader";
-import { useOrder } from "@/context/order/order.context";
 import { useUser } from "@/context/user/user.context";
 import { checkoutService } from "@/services/checkout";
 import { TStatus } from "@/services/checkout/service";
 import { User } from "@/types/user";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import Detail from "./Detail";
+import { TCheckout } from "@/types/checkout";
 
 const status = [
   {
@@ -31,8 +32,7 @@ const status = [
 const OrderView = () => {
   const user: User = useUser();
   const [loading, setLoading] = useState(false);
-  // const order = useOrder();
-  const [order, setOrder] = useState<any[]>([]);
+  const [order, setOrder] = useState<TCheckout[]>([]);
   const { query, push, asPath } = useRouter();
 
   const getOrders = async () => {
@@ -64,6 +64,16 @@ const OrderView = () => {
   };
 
   useEffect(() => {
+    const mkidtransUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const script = document.createElement("script");
+    script.src = mkidtransUrl;
+    script.setAttribute(
+      "data-client-key",
+      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!
+    );
+    script.async = true;
+
+    document.body.appendChild(script);
     if (query) {
       if (query.status) {
         getFilterOrders(query.status as TStatus);
@@ -71,9 +81,14 @@ const OrderView = () => {
         getOrders();
       }
     }
+    return () => {
+      document.body.removeChild(script);
+    };
   }, [query, user]);
 
-  return (
+  return query.order ? (
+    <Detail id={query.order[0] as string} />
+  ) : (
     <ProfileLayout>
       {loading ? (
         <div className="w-full h-dvh flex items-center justify-center">
@@ -81,8 +96,10 @@ const OrderView = () => {
         </div>
       ) : (
         <div className="pt-10 pb-24 gap-4 w-full">
-          <h1 className="text-xl font-bold mb-5">Your order</h1>
-          <ul className="w-full grid grid-cols-4 items-center text-lg gap-x-4 mb-8">
+          <h1 className="text-xl font-bold mb-5">
+            Your order ( {order.length} )
+          </h1>
+          <ul className="w-full grid grid-cols-4 items-center md:text-lg text-sm gap-x-4 mb-8">
             {status.map((s, i) => (
               <li
                 className={`w-full ${

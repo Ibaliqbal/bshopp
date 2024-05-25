@@ -38,9 +38,15 @@ export default function Table<TData, TValue>({
     },
   });
   return (
-    <main className="lg:basis-full p-3 h-full">
+    <main className="lg:basis-full p-3 h-full w-full">
       <h1 className="mb-4 font-semibold text-4xl">{title}</h1>
-      <div className="w-full mb-4 flex items-center justify-between">
+      <p className="my-4 text-xl font-semibold">
+        Total{" "}
+        {title === "Products Management"
+          ? `Products ${data.length}`
+          : `Users ${data.length}`}
+      </p>
+      <div className="w-full mb-4 flex gap-4 md:items-center md:flex-row flex-col justify-between">
         <Input
           type="text"
           placeholder="Search value..."
@@ -71,7 +77,7 @@ export default function Table<TData, TValue>({
           </Button>
         )}
       </div>
-      <div className="w-full relative overflow-auto">
+      <div className="w-full relative overflow-x-auto max-w-full">
         <table className="w-full border border-collapse border-gray-700 text-center">
           <thead
             className={`bg-black ${

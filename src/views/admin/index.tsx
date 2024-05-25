@@ -2,7 +2,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import TextGenerateEffect from "@/components/ui/text-generate-effect";
 import { useSession } from "next-auth/react";
 import React from "react";
-import { Line, Bar, Pie } from "react-chartjs-2";
+import { Line, Bar, Pie, PolarArea } from "react-chartjs-2";
 import {
   Chart as ChartJs,
   LineElement,
@@ -14,12 +14,10 @@ import {
   Legend,
   BarElement,
   ArcElement,
+  RadialLinearScale,
 } from "chart.js";
 import { ordersService } from "@/services/orders";
-import { Orders } from "@/types/orders";
-import { getMonth, getYear } from "date-fns";
 import { MONTH } from "@/constant";
-import { ChcekoutCart } from "@/types/checkout";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
@@ -34,160 +32,175 @@ ChartJs.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  RadialLinearScale
 );
+
 import { motion } from "framer-motion";
+import orderFn, { richPeople, sumOrders } from "@/function/orders";
+import userService from "@/services/users";
+import { User } from "@/types/user";
+import { sumFavorties } from "@/function/product";
+import { Orders } from "@/types/orders";
+import Image from "next/image";
+import { converPrice } from "@/utils/convertPrice";
 
-function sumOrders(data: Array<Orders>) {
-  const thisYear = new Date().getFullYear();
-  const filteredOrders = data.filter(
-    (check) => getYear(new Date(check.orderAt.seconds * 1000)) === thisYear
+async function fetchDatas() {
+  const [orders, products, users] = await Promise.all([
+    ordersService.get(),
+    productsServices.get(),
+    userService.get(),
+  ]);
+  const dataOrders = orders.data?.payload as Array<Orders>;
+  const dataUsers = users.data?.payload as Array<User>;
+  const dataProducts = products.data?.payload as Array<Product>;
+  const dataOrdersPerYear = sumOrders(dataOrders);
+  const richCustomer = richPeople(dataOrders).slice(0, 3);
+  const allFvaoriteUsers = dataUsers.flatMap((user) => user.favorite);
+  const totalFavortie = sumFavorties(
+    allFvaoriteUsers.filter((p) => p !== undefined)
   );
 
-  const mappingPerMonth = filteredOrders.reduce((acc: any, curr: Orders) => {
-    const found = acc.find(
-      (c: any) =>
-        c.month === MONTH[getMonth(new Date(curr.orderAt.seconds * 1000))]
-    );
-
-    if (found) {
-      found.total += curr.cart.reduce((acc: number, curr: ChcekoutCart) => {
-        return acc + curr.qty * curr.price;
-      }, 0);
-    } else {
-      acc.push({
-        month: MONTH[getMonth(new Date(curr.orderAt.seconds * 1000))],
-        total: curr.cart.reduce((acc: number, curr: ChcekoutCart) => {
-          return acc + curr.qty * curr.price;
-        }, 0),
-      });
-    }
-    return acc;
-  }, []);
-  const mappingOrderPerMonth = filteredOrders.reduce(
-    (acc: any, curr: Orders) => {
-      const found = acc.find(
-        (c: any) =>
-          c.month === MONTH[getMonth(new Date(curr.orderAt.seconds * 1000))]
-      );
-
-      if (found) {
-        found.total += 1;
-      } else {
-        acc.push({
-          month: MONTH[getMonth(new Date(curr.orderAt.seconds * 1000))],
-          total: 1,
-        });
-      }
-      return acc;
-    },
-    []
-  );
-
-  const mappingPerYear = MONTH.map((m) => {
-    const found = mappingPerMonth.find(
-      (c: { month: string; total: number }) => c.month === m
-    );
-    if (found) {
-      return found.total;
-    } else {
-      return 0;
-    }
-  });
-  const mappingOrderPerYear = MONTH.map((m) => {
-    const found = mappingOrderPerMonth.find(
-      (c: { month: string; total: number }) => c.month === m
-    );
-    if (found) {
-      return found.total;
-    } else {
-      return 0;
-    }
-  });
-  return {
-    totalPerYear: mappingPerYear,
-    totalOrderPerYear: mappingOrderPerYear,
-  };
-}
-async function fetchOrders() {
-  const response = await ordersService.get();
-  const data = response.data.payload as Array<Orders>;
-
-  const dataOrdersPerYear = sumOrders(data);
+  const topThree = dataProducts
+    .sort((a, b) => b.soldout - a.soldout)
+    .slice(0, 5);
 
   return {
-    payload: data,
+    products: dataOrders,
     dataPerYear: dataOrdersPerYear.totalPerYear,
     dataOrderPerYear: dataOrdersPerYear.totalOrderPerYear,
+    totalOrders: dataProducts,
+    topThree,
+    richCustomer,
+    totalFavorite: totalFavortie.sort((a, b) => b.total - a.total).slice(0, 5),
+    users: dataUsers,
   };
-}
-
-async function fetchProducts() {
-  const response = await productsServices.get();
-  const data = response.data.payload as Array<Product>;
-  const topThree = data.sort((a, b) => b.soldout - a.soldout);
-
-  return { totalData: data, topThree: topThree.slice(0, 3) };
 }
 
 export default function AdminDashboardView() {
   const { data } = useSession();
   const {
-    data: orders,
+    data: allData,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["orders"],
-    queryFn: fetchOrders,
-    staleTime: 60 * 60 * 24,
-  });
-  const {
-    data: products,
-    error: errorProduct,
-    isError: isErrorProducts,
-    isLoading: isLoadingProducts,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+    queryKey: ["datas"],
+    queryFn: fetchDatas,
     staleTime: 60 * 60 * 24,
   });
 
-  if (isError || isErrorProducts)
-    return <p>{error?.message || errorProduct?.message}</p>;
+  if (isError) return <p>{error?.message}</p>;
 
   return (
     <AdminLayout>
-      <section className="lg:basis-full text-black pb-24">
+      <section className="lg:basis-full w-full text-black pb-24">
         <TextGenerateEffect
-          words={`Hello ${data?.user?.name} 🙌`}
+          words={`Hello ${data?.user?.fullname} 🙌`}
           className="md:text-3xl text-2xl"
         />
-        {isLoading || isLoadingProducts ? (
+        {isLoading ? (
           <section className="w-full flex items-center justify-center mt-6">
             <Loader className="text-black" />
           </section>
         ) : (
-          <>
-            <motion.div
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1, transformOrigin: "bottom" }}
-              transition={{
-                delay: 1,
-                duration: 0.6,
-                ease: "circInOut",
-                type: "spring",
-              }}
-              className="mt-5 p-2 border-2 border-black rounded-md"
-            >
-              <h1 className="text-2xl">Total Revenue</h1>
+          <main className="w-full">
+            <section className="w-full grid md:grid-cols-3 gap-3 mt-5">
+              <article className="md:col-span-1 p-4 flex flex-col gap-3 border-2 rounded-md border-black">
+                <h4 className="text-lg font-semibold">Top 3 Customer</h4>
+                {allData?.richCustomer.map((people, i) => (
+                  <motion.div
+                    initial={{ translateY: 100, opacity: 0 }}
+                    animate={{ translateY: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.8 }}
+                    key={people.id}
+                    className="w-full flex items-center justify-between border-b-2 border-b-slate-700 py-3"
+                  >
+                    <figure className="flex gap-3 items-center">
+                      <Image
+                        src={
+                          allData.users.find((user) => user.id === people.id)
+                            ?.photo_profile
+                            ? (allData.users.find(
+                                (user) => user.id === people.id
+                              )?.photo_profile as string)
+                            : "/userdefault.png"
+                        }
+                        alt="Profile"
+                        width={70}
+                        height={70}
+                        className="rounded-full"
+                      />
+                      <figcaption>
+                        {
+                          allData.users.find((user) => user.id === people.id)
+                            ?.fullname
+                        }
+                      </figcaption>
+                    </figure>
+                    <p>{converPrice(people.total)}</p>
+                  </motion.div>
+                ))}
+              </article>
+              <div className="md:col-span-1 p-2 border-2 border-black rounded-md">
+                <h1 className="text-2xl mb-4">Top 5 Products</h1>
+                <Pie
+                  data={{
+                    labels: allData?.topThree?.map((p) => p.name_product),
+                    datasets: [
+                      {
+                        label: "Top 3 Products",
+                        data: allData?.topThree?.map((p) => p.soldout),
+                        backgroundColor: [
+                          "rgba(247, 214, 0, 0.78)",
+                          "rgba(134, 134, 134, 0.78)",
+                          "rgba(201, 113, 23, 0.78)",
+                          "rgba(134, 50, 135, 0.82)",
+                          "rgba(32, 205, 37, 0.82)",
+                        ],
+                      },
+                    ],
+                  }}
+                />
+              </div>
+              <div className="md:col-span-1 p-2 border-2 border-black rounded-md">
+                <h1 className="text-2xl mb-4">5 Favorite Products</h1>
+                <PolarArea
+                  data={{
+                    labels: allData?.totalFavorite?.map(
+                      (favorite) => favorite.name
+                    ),
+                    datasets: [
+                      {
+                        label: "5 Favorites Products",
+                        data: allData?.totalFavorite?.map(
+                          (favorite) => favorite.total
+                        ),
+                        backgroundColor: [
+                          "rgba(247, 214, 0, 0.78)",
+                          "rgba(6, 39, 172, 0.82)",
+                          "rgba(255, 133, 0, 0.82)",
+                          "rgba(245, 40, 145, 0.8)",
+                          "rgba(80, 128, 188, 1)",
+                        ],
+                      },
+                    ],
+                  }}
+                />
+              </div>
+            </section>
+
+            <div className="mt-5 p-2 border-2 border-black rounded-md col-span-2">
+              <h1 className="text-2xl mb-4">
+                Total Revenue in {new Date().getFullYear()}
+              </h1>
               <Line
                 data={{
                   labels: MONTH,
                   datasets: [
                     {
                       label: "Total Revenue",
-                      data: orders?.dataPerYear,
+                      data: allData?.dataPerYear,
                       borderColor: "rgba(0, 204,  204, 0.6)",
                       tension: 0.3,
                     },
@@ -197,64 +210,28 @@ export default function AdminDashboardView() {
                   responsive: true,
                 }}
               />
-            </motion.div>
-            <div className="md:grid grid-cols-3 gap-5">
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1, transformOrigin: "left" }}
-                transition={{
-                  delay: 2,
-                  duration: 0.7,
-                  ease: "circInOut",
-                  type: "spring",
-                }}
-                className="mt-5 md:col-span-2 p-2 border-2 border-black rounded-md"
-              >
-                <h1 className="text-2xl">Total Order</h1>
-                <Bar
-                  data={{
-                    labels: MONTH,
-                    datasets: [
-                      {
-                        label: "Total Order",
-                        data: orders?.dataOrderPerYear,
-                        backgroundColor: "rgba(38, 233, 226, 0.78)",
-                      },
-                    ],
-                  }}
-                />
-              </motion.div>
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1, transformOrigin: "right" }}
-                transition={{
-                  delay: 3,
-                  duration: 0.8,
-                  ease: "circInOut",
-                  type: "spring",
-                }}
-                className="mt-5 md:col-span-1 p-2 border-2 border-black rounded-md"
-              >
-                <h1 className="text-2xl">Top 3 Products</h1>
-                <Pie
-                  data={{
-                    labels: products?.topThree.map((p) => p.name_product),
-                    datasets: [
-                      {
-                        label: "Top 3 Products",
-                        data: products?.topThree.map((p) => p.soldout),
-                        backgroundColor: [
-                          "rgba(247, 214, 0, 0.78)",
-                          "rgba(134, 134, 134, 0.78)",
-                          "rgba(201, 113, 23, 0.78)",
-                        ],
-                      },
-                    ],
-                  }}
-                />
-              </motion.div>
             </div>
-          </>
+            <div className="mt-5 p-2 border-2 border-black rounded-md">
+              <h1 className="text-2xl mb-4">
+                Total Order in {new Date().getFullYear()}
+              </h1>
+              <Bar
+                data={{
+                  labels: MONTH,
+                  datasets: [
+                    {
+                      label: "Total Order",
+                      data: allData?.dataOrderPerYear,
+                      backgroundColor: "rgba(38, 233, 226, 0.78)",
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                }}
+              />
+            </div>
+          </main>
         )}
       </section>
     </AdminLayout>

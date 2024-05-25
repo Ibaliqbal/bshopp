@@ -37,6 +37,7 @@ export const CartProvider = ({
   const [cartData, setCart] = React.useState<Cart[]>([]);
   const [userId, setUserId] = React.useState("");
   const { status, data } = useSession();
+  const [role, setRole] = React.useState("member");
 
   React.useEffect(() => {
     const unsub = onSnapshot(
@@ -54,6 +55,7 @@ export const CartProvider = ({
           if (data) {
             setCart(data.cart);
             setUserId(data.id);
+            setRole(data.role);
           }
         }
       }
@@ -67,21 +69,33 @@ export const CartProvider = ({
       toast.error("Please login first");
       return;
     } else {
-      const findIndex = cartData?.findIndex(
-        (product) => product.id === data?.id && product.variant === data.variant
-      );
-      if (findIndex !== -1) {
-        const findProduct = cartData.find(
-          (p) => p.id === data?.id && p.variant === data?.variant
+      if (role !== "admin") {
+        const findIndex = cartData?.findIndex(
+          (product) =>
+            product.id === data?.id && product.variant === data.variant
         );
-        if (findProduct) {
-          const update = {
-            ...findProduct,
-            quantity: findProduct.quantity + 1,
-          };
-          const newCart = cartData?.with(findIndex, update);
+        if (findIndex !== -1) {
+          const findProduct = cartData.find(
+            (p) => p.id === data?.id && p.variant === data?.variant
+          );
+          if (findProduct) {
+            const update = {
+              ...findProduct,
+              quantity: findProduct.quantity + 1,
+            };
+            const newCart = cartData?.with(findIndex, update);
+            const res = await userService.update(userId || "", {
+              cart: newCart,
+            });
+            if (res.status === 200) {
+              toast.success(res.data.message);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        } else {
           const res = await userService.update(userId || "", {
-            cart: newCart,
+            cart: [...cartData, data],
           });
           if (res.status === 200) {
             toast.success(res.data.message);
@@ -90,14 +104,7 @@ export const CartProvider = ({
           }
         }
       } else {
-        const res = await userService.update(userId || "", {
-          cart: [...cartData, data],
-        });
-        if (res.status === 200) {
-          toast.success(res.data.message);
-        } else {
-          toast.error(res.data.message);
-        }
+        toast.error("Only user or member can interact for this feature !");
       }
     }
   };

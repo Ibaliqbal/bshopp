@@ -10,6 +10,8 @@ import Link from "next/link";
 import { FavoriteContext } from "@/context/favorite/favorite.context";
 import { Cart } from "@/types/user";
 import { CartContext } from "@/context/cart/cart.context";
+import { formatDistance } from "date-fns";
+import { TComment } from "@/types/comment";
 
 export const myStyles = {
   itemShapes: ThinStar,
@@ -23,15 +25,21 @@ export default function DetailView({
   selectPrice,
   setSelectedImage,
   setSelectPrice,
+  comments,
 }: {
   data: Product;
   selectedImage: string;
   selectPrice: number;
   setSelectedImage: React.Dispatch<React.SetStateAction<string>>;
   setSelectPrice: React.Dispatch<React.SetStateAction<number>>;
+  comments: Array<TComment>;
 }) {
   const fav = useContext(FavoriteContext);
   const cart = useContext(CartContext);
+  const totalRating =
+    comments.length > 0
+      ? comments.reduce((acc, curr) => acc + curr.rating, 0) / comments.length
+      : 0;
   return (
     <motion.section className="flex flex-wrap justify-between mb-8 border-b-2 border-b-black pb-3">
       <motion.figure className="w-full md:w-1/2 p-4">
@@ -67,7 +75,7 @@ export default function DetailView({
         <div className="flex items-center gap-2">
           <Rating
             readOnly
-            value={5}
+            value={totalRating}
             style={{
               maxWidth: 120,
               marginBottom: ".5rem",
@@ -75,7 +83,7 @@ export default function DetailView({
             }}
             itemStyles={myStyles}
           />
-          <p className="text-lg">5</p>
+          <p className="text-lg">{totalRating}</p>
         </div>
         <p className="text-4xl font-semibold">{converPrice(selectPrice)}</p>
         <p className="text-lg">
@@ -147,49 +155,68 @@ export default function DetailView({
           <h3 className="text-xl font-bold mb-4">Description</h3>
           <p className="">{data.description}</p>
         </div>
-        <div>
-          <h4 className="mb-4 text-xl font-semibold">Reviews product</h4>
-          <section className="flex flex-col gap-6 items-center mb-4">
-            {Array.from({ length: 3 }).map((_, i) => {
-              return (
-                <article key={i}>
-                  <div className=" flex gap-3 items-center">
-                    <Image
-                      alt="User"
-                      src={"/userdefault.png"}
-                      width={50}
-                      height={50}
-                    />
-                    <div className="flex flex-col justify-between">
-                      <h6>Iqbal Muthahhary {i + 1}</h6>
-                      <p>{new Date().toDateString()}</p>
+        {comments.length > 0 ? (
+          <div>
+            <h4 className="mb-4 text-xl font-semibold">Reviews product</h4>
+            <section className="flex flex-col gap-6 items-center mb-4">
+              {comments.slice(0, 3).map((comment, i) => {
+                return (
+                  <article key={i} className="w-full">
+                    <div className=" flex gap-3 items-center">
+                      <Image
+                        alt={"/userdeafult.png"}
+                        src={comment.photo_profile}
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                      />
+                      <div className="flex flex-col justify-between">
+                        <h6>{comment.name}</h6>
+                        <p>
+                          {formatDistance(
+                            new Date(comment.comment_at.seconds * 1000),
+                            new Date(),
+                            {
+                              addSuffix: true,
+                              includeSeconds: true,
+                            }
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <Rating
-                    readOnly
-                    value={5}
-                    style={{
-                      maxWidth: 150,
-                      marginBottom: ".5rem",
-                      marginTop: ".5rem",
-                    }}
-                    itemStyles={myStyles}
-                  />
-                  <p>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                    Repellat, quo explicabo veniam cupiditate sed eius!
-                  </p>
-                </article>
-              );
-            })}
-          </section>
-          <Link
-            href={`/products/${data.id}/comments`}
-            className="underline underline-offset-8 decoration-2"
-          >
-            More reviews
-          </Link>
-        </div>
+                    <Rating
+                      readOnly
+                      value={comment.rating}
+                      style={{
+                        maxWidth: 150,
+                        marginBottom: ".5rem",
+                        marginTop: ".5rem",
+                      }}
+                      itemStyles={myStyles}
+                    />
+                    <p>{comment.text}</p>
+                  </article>
+                );
+              })}
+            </section>
+            <Link
+              href={`/products/${data.id}/comments`}
+              className="underline underline-offset-8 decoration-2"
+            >
+              More reviews
+            </Link>
+          </div>
+        ) : (
+          <p className="text-center underline underline-offset-8 decoration-2">
+            No review,{" "}
+            <Link
+              href={`/products/${data.id}/comments`}
+              className="text-blue-600"
+            >
+              Create review now
+            </Link>
+          </p>
+        )}
       </motion.div>
     </motion.section>
   );

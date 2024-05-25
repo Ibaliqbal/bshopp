@@ -2,7 +2,14 @@ import Sidebar from "@/components/layouts/SidebarHome";
 import ListFilter from "@/components/layouts/SidebarHome/ListFilter";
 import Loader from "@/components/ui/loader";
 import { productsServices } from "@/services/products";
-import { Product, mensOption, womensOption } from "@/types/product";
+import {
+  Product,
+  SORTING_OPT,
+  mensOption,
+  sortingOption,
+  womensOption,
+} from "@/types/product";
+import { sortProducts } from "@/utils/sortProducts";
 import ProductsView from "@/views/products";
 import Header from "@/views/products/header";
 import { useQuery } from "@tanstack/react-query";
@@ -13,10 +20,10 @@ const ProductsPage = () => {
   const [datas, setDatas] = useState<any[]>([]);
   const [filterProducts, setFilterProducts] = useState<Product[]>([]);
   const [selectOptions, setSelectOptions] = React.useState<number>(0);
-  const [sortingOption, setSortingOption] = React.useState<number>(0);
+  const [sortingOptions, setSortingOption] = React.useState<number>(0);
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ["products"],
-    queryFn: () => productsServices.get(),
+    queryFn: async () => await productsServices.get(),
     staleTime: 10000,
   });
 
@@ -26,6 +33,7 @@ const ProductsPage = () => {
   }, [data]);
 
   // Ini untuk infinite scroll pagination
+
   // async function handleLoadMore() {
   //   if (count === 0) return toast.success("SUdah berhasil sampai selesai");
   //   const res = await productsServices.getProductsPaginations(start, limit);
@@ -38,24 +46,39 @@ const ProductsPage = () => {
   // }
 
   const handleFilter = (value: number) => {
-    if (value === selectOptions) {
-      setSelectOptions(0);
-      setFilterProducts(datas);
+    if (sortingOptions) {
+      if (value === selectOptions) {
+        setSelectOptions(0);
+        const data = sortProducts(datas, sortingOptions);
+        setFilterProducts(data as Product[]);
+      } else {
+        const data = sortProducts(datas, sortingOptions);
+        const filterDatas = data?.filter(
+          (product: Product) => product.categories?.value === value
+        );
+        setFilterProducts(filterDatas as Product[]);
+        setSelectOptions(value);
+      }
     } else {
-      const filterDatas = datas.filter(
-        (product: any) => product.categories.value === value
-      );
-      setFilterProducts(filterDatas);
-      setSelectOptions(value);
+      if (value === selectOptions) {
+        setSelectOptions(0);
+        setFilterProducts(datas);
+      } else {
+        const filterDatas = datas.filter(
+          (product: any) => product.categories.value === value
+        );
+        setFilterProducts(filterDatas);
+        setSelectOptions(value);
+      }
     }
   };
 
   const handleSorting = (value: number) => {
     setSortingOption(value);
-    filterProducts.sort(
-      (a, b) => b.other_specs![0].price - a.other_specs![0].price
-    );
+    const data = sortProducts(filterProducts, value);
+    setFilterProducts(data as Array<Product>);
   };
+
   if (isError) return <p>{error.message}</p>;
 
   return (
@@ -63,7 +86,28 @@ const ProductsPage = () => {
       <Head>
         <title>BShopp | Products</title>
       </Head>
-      <Header />
+      <Header sortingOption={sortingOptions} handleSorting={handleSorting}>
+        <section className="bg-black p-3 mt-3 rounded-md md:hidden flex flex-col gap-6">
+          <ListFilter
+            list={sortingOption}
+            handleFilter={handleSorting}
+            title="Sorting"
+            selectOptions={sortingOptions}
+          />
+          <ListFilter
+            list={mensOption}
+            selectOptions={selectOptions}
+            title="MEN"
+            handleFilter={handleFilter}
+          />
+          <ListFilter
+            list={womensOption}
+            selectOptions={selectOptions}
+            title="WOMEN"
+            handleFilter={handleFilter}
+          />
+        </section>
+      </Header>
       <section className="w-full h-full flex gap-4 p-4 pt-8 pb-24">
         <Sidebar total={filterProducts?.length}>
           <ListFilter

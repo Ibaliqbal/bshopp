@@ -28,6 +28,7 @@ type Props = {
   progress: number;
   setProgress: React.Dispatch<React.SetStateAction<number>>;
   setPhotoProduct: React.Dispatch<React.SetStateAction<string[]>>;
+  isEdit: boolean;
 };
 
 const customStyles: StylesConfig<TOption, false, TGroupedOptions> = {
@@ -61,6 +62,7 @@ const FormProduct = ({
   progress,
   setProgress,
   setPhotoProduct,
+  isEdit,
 }: Props) => {
   return (
     <form
@@ -181,8 +183,23 @@ const FormProduct = ({
                 soldout: 0,
               };
               if (sizeRef.current?.value) {
-                const result = [...stock, data];
-                setStock(result);
+                if (isEdit) {
+                  setStock((prev) =>
+                    prev.map((spec) => {
+                      if (spec.size === data.size) {
+                        return {
+                          ...spec,
+                          stock: spec.stock + data.stock,
+                        };
+                      } else {
+                        return spec;
+                      }
+                    })
+                  );
+                } else {
+                  const result = [...stock, data];
+                  setStock(result);
+                }
               }
             }}
           >
@@ -269,6 +286,8 @@ const FormProduct = ({
       >
         {isSubmitting || !(progress !== null && progress < 100)
           ? "Loading.."
+          : isEdit
+          ? "Update"
           : "Create"}
       </Button>
     </form>

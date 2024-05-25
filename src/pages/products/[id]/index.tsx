@@ -5,9 +5,8 @@ import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import DetailView from "@/views/products/Detail";
 import Recomended from "@/views/products/Detail/Recomended";
-import { Timestamp } from "firebase/firestore";
-import { format, formatDistance } from "date-fns";
 import Loader from "@/components/ui/loader";
+import { fetchData } from "@/function/product";
 
 const DetailProductPage = () => {
   const { query, back } = useRouter();
@@ -16,13 +15,13 @@ const DetailProductPage = () => {
   const [selectPrice, setSelectPrice] = useState<number>(0);
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ["detailProduct", id],
-    queryFn: () => productsServices.detail((id as string) ?? ""),
+    queryFn: () => fetchData(id as string),
     staleTime: 10000,
   });
 
   useEffect(() => {
-    setSelectedImage(data?.data.payload.photo_product[0]);
-    setSelectPrice(data?.data.payload.other_specs[0].price);
+    setSelectedImage(data?.product?.photo_product[0]);
+    setSelectPrice(data?.product?.other_specs[0].price);
   }, [data]);
 
   if (isLoading)
@@ -36,8 +35,8 @@ const DetailProductPage = () => {
   return (
     <>
       <Head>
-        <title>BShopp | {data?.data.payload.name_product}</title>
-        <meta name="description" content={data?.data.payload.description} />
+        <title>BShopp | {data?.product?.name_product}</title>
+        <meta name="description" content={data?.product?.description} />
       </Head>
       <main className="p-4 py-10">
         <i
@@ -47,11 +46,12 @@ const DetailProductPage = () => {
         <DetailView
           selectPrice={selectPrice}
           selectedImage={selectedImage}
-          data={data?.data.payload}
+          data={data?.product || []}
           setSelectedImage={setSelectedImage}
           setSelectPrice={setSelectPrice}
+          comments={data?.comments || []}
         />
-        <Recomended filter={data?.data.payload.categories.value} />
+        <Recomended filter={data?.product?.categories.value} />
       </main>
     </>
   );
