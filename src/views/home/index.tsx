@@ -58,7 +58,7 @@ const HomeView = () => {
     fetchProducts();
   }, []);
   return (
-    <section>
+    <section className="w-full">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -127,7 +127,7 @@ const HomeView = () => {
           />
         </div>
       </div>
-      <div className="pb-24">
+      <div className="pb-24 w-full">
         <Countdown />
       </div>
     </section>

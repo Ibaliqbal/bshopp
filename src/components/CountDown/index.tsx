@@ -47,7 +47,7 @@ const Countdown = () => {
 
   return (
     <div
-      className="p-4 w-full h-dvh flex flex-col gap-5 items-center justify-center"
+      className="w-full h-dvh flex flex-col gap-5 items-center justify-center"
       style={{
         backgroundImage: "url(/promotion.png)",
         backgroundRepeat: "no-repeat",
@@ -56,7 +56,7 @@ const Countdown = () => {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="w-fit py-2 px-10 flex items-center justify-center bg-transparent ">
+      <div className="w-full max-w-layout py-2 px-10 flex items-center justify-center bg-transparent ">
         <CountdownItem
           num={remaining.days}
           text="days"
@@ -104,7 +104,7 @@ const CountdownItem = ({
             animate={{ y: "0%" }}
             exit={{ y: "-100%" }}
             transition={{ ease: "backIn", duration: 0.75 }}
-            className={`block text-2xl md:text-4xl lg:text-6xl xl:text-7xl ${className} font-medium`}
+            className={`block text-xl md:text-4xl lg:text-6xl xl:text-7xl ${className} font-medium`}
           >
             {num}
           </motion.span>
