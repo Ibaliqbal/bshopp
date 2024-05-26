@@ -19,7 +19,7 @@ const disabledFooter = ["auth", "_error", "admin", "profile", "success-order"];
 const AppShell = ({ children }: AppShellProps) => {
   const { pathname } = useRouter();
   return (
-    <main className={`${poppins.style} w-full`}>
+    <main className={`${poppins.className} w-full`}>
       {!disabledNavbar.includes(pathname.split("/")[1]) && <Navbar />}
       <section
         className={`${pathname !== "/" ? "max-w-layout mx-auto" : "w-full"}`}

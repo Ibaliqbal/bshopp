@@ -22,12 +22,6 @@ const DeatilOrderPage = () => {
     </section>
   ) : (
     <section className="w-full h-full flex flex-col gap-4 p-4 pb-24 relative">
-      <i
-        aria-label="Download page"
-        className="bx bxs-download text-2xl p-2 rounded-md cursor-pointer border-2 border-black absolute right-4"
-        onClick={() => window.print()}
-      />
-
       <figure className="flex md:flex-row flex-col gap-6 items-center">
         {data?.data.payload.cart.map((c: CheckoutCart, i: number) => {
           return (
