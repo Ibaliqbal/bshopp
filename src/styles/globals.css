@@ -27,6 +27,11 @@
   mask-image: linear-gradient(rgba(0, 0, 0, 0.8) 90%, rgba(0, 0, 0, 0.2));
 }
 
+.countdown {
+  -webkit-mask-image: linear-gradient(rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0));
+  mask-image: linear-gradient(rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0.9));
+}
+
 .modal::-webkit-scrollbar {
   width: 5px;
 }

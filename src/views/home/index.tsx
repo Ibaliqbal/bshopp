@@ -127,7 +127,7 @@ const HomeView = () => {
           />
         </div>
       </div>
-      <div className="w-full">
+      <div className="w-full countdown">
         <Countdown />
       </div>
     </section>

@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { getSession, SessionProvider } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import AppShell from "@/components/layouts/AppShell";
 import Head from "next/head";
 import { Toaster } from "sonner";
