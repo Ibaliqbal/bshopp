@@ -73,10 +73,19 @@ export async function loginWithGoogle(
     where("email", "==", data.email),
   ]);
 
+  const newUser = {
+    ...data,
+    cart: [],
+    favorite: [],
+    province: null,
+    city: null,
+    district: null,
+  };
+
   if (user.length > 0) {
     callback(user[0]);
   } else {
-    await setData("users", data, (result: boolean) => {
+    await setData("users", newUser, (result: boolean) => {
       if (result) callback(data);
     });
   }
