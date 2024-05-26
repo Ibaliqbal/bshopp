@@ -58,6 +58,7 @@ const authOptions: AuthOptions = {
           type: "google",
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
+          role: "member",
         };
 
         await loginWithGoogle(data, (result: any) => {

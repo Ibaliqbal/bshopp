@@ -65,7 +65,7 @@ export async function loginWithGoogle(
     type: string;
     createdAt: FieldValue;
     updatedAt: FieldValue;
-    role?: string;
+    role: string;
   },
   callback: Function
 ) {
