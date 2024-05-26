@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { productsServices } from "@/services/products";
 import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import DetailView from "@/views/products/Detail";

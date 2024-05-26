@@ -27,26 +27,23 @@ export default async function handler(
     });
   } else if (req.method === "GET") {
     const query = req.query.comments;
+    if (query) {
+      const result = await getCommentByProduct(query[0]);
 
-    verify(req, res, false, async () => {
-      if (query) {
-        const result = await getCommentByProduct(query[0]);
-
-        if (result) {
-          return res.status(200).json({
-            status: true,
-            message: "Success",
-            payload: result,
-          });
-        } else {
-          return res.status(400).json({
-            status: false,
-            message: "Failed",
-            payload: [],
-          });
-        }
+      if (result) {
+        return res.status(200).json({
+          status: true,
+          message: "Success",
+          payload: result,
+        });
+      } else {
+        return res.status(400).json({
+          status: false,
+          message: "Failed",
+          payload: [],
+        });
       }
-    });
+    }
   } else {
     res.status(500).json({
       status: false,

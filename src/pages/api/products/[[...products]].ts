@@ -14,7 +14,6 @@ import { Product } from "@/types/product";
 import { verify } from "@/utils/verifyToken";
 import { serverTimestamp, where } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
-import bcrypt from "bcrypt";
 
 type Data = {
   status: boolean;
@@ -249,21 +248,23 @@ export default async function handler(
     });
   } else if (req.method === "DELETE") {
     const id = req.query.products;
-    if (id) {
-      await deleteProduct(
-        id[0],
-        (response: { status: boolean; message: string }) => {
-          if (!response.status)
-            res
-              .status(400)
-              .json({ status: response.status, message: response.message });
+    verify(req, res, true, async () => {
+      if (id) {
+        await deleteProduct(
+          id[0],
+          (response: { status: boolean; message: string }) => {
+            if (!response.status)
+              res
+                .status(400)
+                .json({ status: response.status, message: response.message });
 
-          res
-            .status(200)
-            .json({ status: response.status, message: response.message });
-        }
-      );
-    }
+            res
+              .status(200)
+              .json({ status: response.status, message: response.message });
+          }
+        );
+      }
+    });
   } else if (req.method === "PUT") {
     const query = req.query.products;
     let data = req.body;
