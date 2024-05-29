@@ -129,7 +129,7 @@ export default function AdminDashboardView() {
                         alt="Profile"
                         width={70}
                         height={70}
-                        className="rounded-full"
+                        className="rounded-full w-[70px] h-[70px]"
                       />
                       <figcaption>
                         {

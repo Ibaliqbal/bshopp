@@ -24,11 +24,16 @@ const EditView = ({ id }: Props) => {
     control,
     register,
     handleSubmit,
-    setValue,
     formState: { isSubmitting },
   } = useForm<TSchema>({
     resolver: zodResolver(schema),
     async defaultValues() {
+      if (!id)
+        return {
+          name_product: "",
+          description: "",
+          categories: null,
+        };
       const res = await productsServices.detail(id);
       const data = res.data.payload;
       setStock(data.other_specs);

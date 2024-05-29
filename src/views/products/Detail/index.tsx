@@ -83,7 +83,7 @@ export default function DetailView({
             }}
             itemStyles={myStyles}
           />
-          <p className="text-lg">{totalRating}</p>
+          <p className="text-lg">{totalRating.toFixed(2)}</p>
         </div>
         <p className="text-4xl font-semibold">{converPrice(selectPrice)}</p>
         <p className="text-lg">
@@ -165,7 +165,11 @@ export default function DetailView({
                     <div className=" flex gap-3 items-center">
                       <Image
                         alt={"/userdeafult.png"}
-                        src={comment.photo_profile}
+                        src={
+                          comment.photo_profile
+                            ? comment.photo_profile
+                            : "/userdefault.png"
+                        }
                         width={50}
                         height={50}
                         className="rounded-full"

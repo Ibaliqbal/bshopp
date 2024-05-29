@@ -187,34 +187,36 @@ export function sumOrders(data: Array<Orders>) {
 }
 
 export function richPeople(orders: Array<Orders>) {
-  const richPeople = orders.reduce(
-    (
-      acc: Array<{
-        id: string;
-        total: number;
-      }>,
-      curr
-    ) => {
-      const findSameeUser = acc.find((user) => user.id === curr.id);
-      if (findSameeUser) {
-        findSameeUser.total += curr.cart.reduce(
-          (acc: number, curr: CheckoutCart) => {
-            return acc + curr.qty * curr.price;
-          },
-          0
-        );
-      } else {
-        acc.push({
-          id: curr?.id as string,
-          total: curr.cart.reduce((acc: number, curr: CheckoutCart) => {
-            return acc + curr.qty * curr.price;
-          }, 0),
-        });
-      }
-      return acc;
-    },
-    []
-  );
+  const richPeople = orders
+    .filter((order) => order.status === "PAID")
+    .reduce(
+      (
+        acc: Array<{
+          id: string;
+          total: number;
+        }>,
+        curr
+      ) => {
+        const findSameeUser = acc.find((user) => user.id === curr.id);
+        if (findSameeUser) {
+          findSameeUser.total += curr.cart.reduce(
+            (acc: number, curr: CheckoutCart) => {
+              return acc + curr.qty * curr.price;
+            },
+            0
+          );
+        } else {
+          acc.push({
+            id: curr?.id as string,
+            total: curr.cart.reduce((acc: number, curr: CheckoutCart) => {
+              return acc + curr.qty * curr.price;
+            }, 0),
+          });
+        }
+        return acc;
+      },
+      []
+    );
 
   return richPeople;
 }
