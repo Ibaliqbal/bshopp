@@ -56,7 +56,7 @@ const OrderList = ({ order }: { order: TCheckout[] }) => {
         router.replace("/profile/order");
         toast.success("Payment successfully");
       },
-      onPennpding: () => {
+      onPending: () => {
         router.replace("/profile/order");
         toast.success("Waiting for paymnet");
       },
