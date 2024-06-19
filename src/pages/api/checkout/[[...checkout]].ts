@@ -17,7 +17,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";
 
 let snap = new midtransClient.Snap({
-  isProducttion: false,
+  isProduction: false,
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
 });
